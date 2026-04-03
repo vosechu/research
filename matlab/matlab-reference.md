@@ -319,3 +319,169 @@ A reference of frequently encountered MATLAB errors and warnings, organized by c
 |---------------|---------------|---------------|-----|
 | `Warning: Matrix is singular to working precision.` | The matrix has no inverse (determinant is effectively zero). The result will contain `Inf` or `NaN` values. | Calling `inv(A)` or using `A\b` on a matrix with linearly dependent rows/columns; a system of equations has no unique solution. | Check `det(A)` or `cond(A)` first. Use `pinv(A)` for a pseudo-inverse, or `rank(A)` to confirm rank deficiency. Reformulate the problem if the matrix is truly singular. |
 | `Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND = X.` | The matrix is nearly singular; results exist but may have large numerical errors. | A matrix with very large and very small entries; columns that are nearly linearly dependent; poorly scaled physical units. | Check `cond(A)`. Rescale the problem (normalize columns). Use `pinv(A)` or increase precision if possible. Consider whether the model itself is ill-posed. |
+
+---
+
+## Beginner Patterns
+
+### Vectorization Over Loops
+
+MATLAB is optimized for operations on entire arrays at once. Vectorized code runs faster
+than explicit loops because it delegates work to highly optimized internal libraries (LAPACK,
+BLAS) and avoids per-iteration interpreter overhead.
+
+**Loop version (slow):**
+
+```matlab
+x = 1:1000000;
+y = zeros(size(x));
+for k = 1:length(x)
+    y(k) = x(k)^2 + 3*x(k) - 5;
+end
+```
+
+**Vectorized version (fast):**
+
+```matlab
+x = 1:1000000;
+y = x.^2 + 3*x - 5;
+```
+
+Both produce identical results, but the vectorized version is typically 10-50x faster. As a
+rule of thumb: if you find yourself writing a `for` loop that processes one element at a
+time, look for an array operator or built-in function that can do the same work in one
+statement.
+
+### 1-Based Indexing
+
+MATLAB arrays are indexed starting at 1, not 0. The first element of a vector `v` is
+`v(1)`. The keyword `end` refers to the last index of a dimension.
+
+```matlab
+v = [10 20 30 40 50];
+
+v(1)       % 10  — first element
+v(end)     % 50  — last element
+v(end-1)   % 40  — second-to-last element
+v(2:4)     % [20 30 40] — elements 2 through 4
+```
+
+Attempting `v(0)` produces an error: "Array indices must be positive integers or logical
+values."
+
+### Matrix Construction
+
+Semicolons separate rows. The colon operator creates evenly spaced sequences. `linspace`
+creates a vector with a specified number of points.
+
+```matlab
+% Row vector — spaces or commas separate elements
+row = [1 2 3 4 5];
+
+% Column vector — semicolons separate elements
+col = [1; 2; 3; 4; 5];
+
+% 2x3 matrix — semicolons separate rows
+A = [1 2 3; 4 5 6];
+
+% Colon operator — start:step:stop
+t = 0:0.5:2;          % [0 0.5 1.0 1.5 2.0]
+
+% linspace — start, stop, number of points
+x = linspace(0, 2*pi, 100);   % 100 evenly spaced points from 0 to 2*pi
+
+% Special constructors
+Z = zeros(3, 4);       % 3x4 matrix of zeros
+O = ones(2, 2);        % 2x2 matrix of ones
+I = eye(3);            % 3x3 identity matrix
+```
+
+### Basic Plotting Workflow
+
+A complete example that generates a sine wave plot with labeled axes and a grid.
+
+```matlab
+x = linspace(0, 2*pi, 200);   % 200 points from 0 to 2*pi
+y = sin(x);
+
+figure;                         % open a new figure window
+plot(x, y, 'b-', 'LineWidth', 1.5);  % blue solid line, 1.5 pt width
+title('Sine Wave');
+xlabel('x (radians)');
+ylabel('sin(x)');
+grid on;                        % overlay a grid
+```
+
+To add a second curve, use `hold on` before the next `plot` call, and add a `legend`:
+
+```matlab
+hold on;
+plot(x, cos(x), 'r--', 'LineWidth', 1.5);  % red dashed line
+legend('sin(x)', 'cos(x)');
+hold off;
+```
+
+### Function File Structure
+
+A function is saved in its own `.m` file whose name must match the function name. The first
+line declares inputs and outputs.
+
+```matlab
+% File: computeArea.m
+function area = computeArea(radius)
+% COMPUTEAREA  Compute the area of a circle.
+%   area = computeArea(radius) returns the area for the given radius.
+%   radius can be a scalar or array.
+
+    area = pi * radius.^2;
+end
+```
+
+Key rules:
+- The filename (`computeArea.m`) must match the function name (`computeArea`).
+- The `%` comment block right after the function line becomes the help text shown by
+  `help computeArea`.
+- Use element-wise operators (`.^`) so the function works on arrays, not just scalars.
+
+### Script vs Function
+
+- **Script** (`.m` file with no `function` line)
+  - Runs in the base workspace; all variables it creates persist in the caller's workspace.
+  - Takes no input arguments and produces no output arguments.
+  - Good for quick, one-off tasks, data-loading routines, and interactive exploration.
+- **Function** (`.m` file beginning with `function`)
+  - Has its own private workspace; variables inside are not visible outside.
+  - Accepts input arguments and returns output arguments.
+  - Good for reusable, testable code that should not interfere with other variables.
+
+```matlab
+% --- Script example (myScript.m) ---
+% No function line; runs in the base workspace
+x = linspace(0, 10, 50);
+y = x.^2;
+plot(x, y);
+
+% --- Function example (square.m) ---
+function y = square(x)
+    y = x.^2;
+end
+```
+
+---
+
+## Gotchas
+
+Common pitfalls that trip up MATLAB beginners. The third column shows the corrected approach.
+
+| Gotcha | What Happens | What You Probably Wanted |
+|--------|-------------|--------------------------|
+| Missing semicolon at end of statement | Every result prints to the Command Window, flooding output and slowing execution. | Terminate assignments with `;` to suppress output: `x = 5;` |
+| Using `=` instead of `==` in a condition | `if x = 5` is an assignment error, not a comparison. MATLAB throws "The expression to the left of the equals sign is not a valid target for an assignment." | Use the equality operator: `if x == 5` |
+| `*` instead of `.*` | `A * B` performs matrix multiplication (inner dimensions must agree). Two 1x3 row vectors will error with "Incorrect dimensions." | Use `.*` for element-wise multiplication: `A .* B` |
+| Row vs column vector confusion | `[1 2 3]` is 1x3 (row); `[1; 2; 3]` is 3x1 (column). Mixing them in operations causes dimension mismatch errors. | Be deliberate: use semicolons for column vectors, spaces/commas for row vectors. Transpose with `.'` when needed. |
+| Using `i` or `j` as loop variables | Overwrites the built-in imaginary unit (`1i`, `1j`). Later complex arithmetic silently uses the loop variable's last value instead of sqrt(-1). | Use `1i` or `1j` for the imaginary unit (these cannot be overwritten), or choose other loop variable names like `k`, `m`, `n`. |
+| Char array vs string confusion | `'hello'` creates a 1x5 `char` array; `"hello"` creates a 1x1 `string` scalar. Some functions treat them differently; concatenation rules differ. | Pick one type consistently. Use `"hello"` (double quotes) for `string` scalars in modern MATLAB (R2016b+). Convert with `string()` or `char()` when needed. |
+| Expecting integer division | `7/2` returns `3.5`, not `3`. MATLAB defaults to `double` for all numeric literals. | Use `floor(7/2)`, `idivide(int32(7), int32(2))`, or `fix(7/2)` for truncated integer division. |
+| Indexing into an empty array | `A = []; A(1)` errors with "Index exceeds the number of array elements (0)." Growing arrays by indexing past the end works, but reading past the end does not. | Check `isempty(A)` before indexing. Pre-allocate with `zeros` or `NaN` instead of starting from `[]`. |
+| Functions cannot see base workspace variables | A function has its own workspace. Variables defined in the Command Window or a script are invisible inside a function body. | Pass values as input arguments. Avoid `global`; it creates hard-to-debug hidden dependencies. |
+| `end` keyword overload | `end` both closes blocks (`if`/`for`/`function`) and means "last index" inside subscripts (`A(end)`). Misplacing `end` can close a block early or cause a cryptic parse error. | Match every block-opening keyword with exactly one `end`. Use the Editor's code folding and indentation to verify nesting. Inside indexing expressions, `end` always means last index. |
