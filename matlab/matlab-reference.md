@@ -1,8 +1,6 @@
-# MATLAB Language Reference
+# MATLAB Reference — Beginner & Intermediate
 
-Foundation reference for MATLAB reserved keywords, operators, and special characters.
-Covers everything returned by `iskeyword` and all operator categories. Focused on what
-introductory students encounter. Sources: MathWorks official documentation.
+Quick-reference for introductory MATLAB coursework. Compiled from MathWorks documentation.
 
 ---
 
