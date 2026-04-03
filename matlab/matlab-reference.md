@@ -240,3 +240,82 @@ evaluating as soon as the result is determined.
 | `isnan` | `tf = isnan(X)` | Return a logical array that is true where elements of `X` are `NaN` |
 | `isinf` | `tf = isinf(X)` | Return a logical array that is true where elements of `X` are `+Inf` or `-Inf` |
 | `exist` | `n = exist(name)` or `n = exist(name,type)` | Check whether a variable, file, folder, or class exists; returns a numeric code indicating type |
+
+---
+
+## Common Error Messages
+
+A reference of frequently encountered MATLAB errors and warnings, organized by category. Each entry lists the exact message text MATLAB produces, what it means in plain English, what typically causes it, and how to fix it.
+
+### Dimension Mismatch Errors
+
+| Error Message | What It Means | Typical Cause | Fix |
+|---------------|---------------|---------------|-----|
+| `Inner matrix dimensions must agree.` | The number of columns in the left matrix does not equal the number of rows in the right matrix for `*` multiplication. | Using `*` instead of `.*`, or multiplying matrices/vectors whose sizes are incompatible (e.g., a 3x2 times a 3x1). | Check `size()` of both operands. Use `.*` for element-wise multiplication, or transpose one operand so inner dimensions match. |
+| `Matrix dimensions must agree.` | Two arrays in an element-wise operation (`+`, `-`, `.*`, `./`, etc.) do not have the same size. | Adding or subtracting vectors/matrices of different lengths or shapes (e.g., a 1x3 plus a 1x4). | Verify both arrays have identical dimensions with `size()`. Reshape or transpose one operand as needed. |
+| `Dimensions of arrays being concatenated are not consistent.` | Arrays being joined with `[ ]`, `horzcat`, or `vertcat` have mismatched sizes along the concatenation dimension. | `[A; B]` where `A` has 3 columns and `B` has 4 columns, or `[A, B]` where row counts differ. | Ensure arrays share the same size along the non-concatenation dimension before combining them. |
+| `Arrays have incompatible sizes for this operation.` | An element-wise operation was attempted on arrays whose sizes are not compatible even under implicit expansion (broadcasting). | Operating on a 3x1 vector and a 1x4 vector is fine (broadcasts to 3x4), but a 3x1 and a 2x1 is not. | Check `size()` of both arrays. For implicit expansion, non-singleton dimensions must match. |
+
+### Undefined Variable / Function Errors
+
+| Error Message | What It Means | Typical Cause | Fix |
+|---------------|---------------|---------------|-----|
+| `Undefined function or variable 'X'.` | MATLAB cannot find anything named `X` in the current scope or on the path. | Misspelled variable or function name; variable not yet assigned; function file not on the MATLAB path; forgot to run an earlier section of a script. | Check spelling and case. Make sure the variable is assigned before use. Use `addpath()` or `cd` if the function file is in another folder. |
+| `Undefined function 'X' for input arguments of type 'Y'.` | A function named `X` exists but has no overload that accepts the given input type `Y`. | Passing a string to a function that expects a numeric input, or calling a toolbox function that is not installed. | Verify the input types with `class()`. Check the function's documentation for accepted input types. Confirm the required toolbox is installed with `ver`. |
+| `Unrecognized function or variable 'X'.` | Same as "Undefined function or variable" but appears in some contexts (e.g., Simulink or live scripts). | Identical causes: typo, variable not in scope, function not on path. | Same fixes: check spelling, ensure assignment, verify path. |
+
+### Index Errors
+
+| Error Message | What It Means | Typical Cause | Fix |
+|---------------|---------------|---------------|-----|
+| `Index exceeds the number of array elements. Index must not exceed N.` | You tried to access element at a position beyond the array's total element count. | `A(10)` when `A` has only 5 elements; loop counter goes one step too far; off-by-one error. | Check `numel(A)` or `length(A)`. Fix loop bounds (e.g., use `1:length(A)` instead of a hardcoded limit). |
+| `Index in position 1 exceeds array bounds. Index must not exceed N.` | Row index is larger than the number of rows in the matrix. | `A(5,1)` when `A` is 4x3; loop variable exceeds row count. | Check `size(A,1)` for the row dimension and ensure your index stays within bounds. |
+| `Index in position 2 exceeds array bounds. Index must not exceed N.` | Column index is larger than the number of columns in the matrix. | `A(1,5)` when `A` is 4x3. | Check `size(A,2)` for the column dimension. |
+| `Array indices must be positive integers or logical values.` | An index is zero, negative, fractional, or of a non-integer/non-logical type. | Using `A(0)` (MATLAB is 1-based); using a fractional result as an index; using a string as an index. | Ensure indices are positive whole numbers. Use `round()`, `floor()`, or `ceil()` if computing indices from arithmetic. Remember MATLAB indexing starts at 1. |
+| `Index exceeds matrix dimensions.` | (Legacy, pre-R2018a form) An index is out of range for the matrix. | Same as "Index exceeds the number of array elements" above. | Same fixes: verify array size, check loop bounds. |
+
+### Type Errors
+
+| Error Message | What It Means | Typical Cause | Fix |
+|---------------|---------------|---------------|-----|
+| `Conversion to double from cell is not possible.` | You tried to store a cell array into a numeric array, or use a cell where a number is expected. | Using `()` indexing on a cell array (returns a cell) where `{}` indexing (returns contents) was needed; assigning cell data into a pre-allocated numeric array. | Use `C{k}` instead of `C(k)` to extract cell contents. Use `cell2mat()` to convert a cell array of numbers to a numeric array. |
+| `Conversion to cell from double is not possible.` | You tried to store a number into a cell array using `{}` assignment incorrectly, or mix types in concatenation. | Assigning into a cell array with wrong syntax, or concatenating `[ ]` instead of `{ }`. | Use curly braces `{ }` for cell array construction and indexing. Use `num2cell()` to convert numeric arrays to cell arrays. |
+| `Undefined operator '*' for input arguments of type 'cell'.` | An arithmetic operator was applied to a cell array instead of its numeric contents. | Forgetting to extract the numeric data from a cell with `{}` before doing math. | Extract contents with `{}` indexing or convert with `cell2mat()` before performing arithmetic. |
+| `Operands to the logical and (&&) and logical or (\|\|) operators must be convertible to logical scalar values.` | The short-circuit operators `&&` or `\|\|` received a non-scalar or non-logical operand. | Using `&&` or `\|\|` with arrays instead of scalars; comparing vectors in an `if` condition. | Use element-wise `&` or `\|` for arrays, or reduce to scalar with `all()` or `any()` first. Use `&&`/`\|\|` only for scalar conditions. |
+
+### Syntax Errors
+
+| Error Message | What It Means | Typical Cause | Fix |
+|---------------|---------------|---------------|-----|
+| `Expression or statement is incorrect--possibly unbalanced (, {, or [.` | MATLAB's parser found an incomplete or malformed expression. | Missing a closing `)`, `]`, or `}`; forgetting an operator between terms; pasting code with hidden characters. | Count opening and closing brackets. Use the Editor's bracket matching (click a bracket to highlight its pair). |
+| `Unbalanced or unexpected parenthesis or bracket.` | There is an extra or misplaced closing bracket/parenthesis without a matching opener. | Extra `)` or `]`; accidentally deleted an opening bracket; mismatched bracket types (e.g., opened with `(` but closed with `]`). | Count and match all bracket pairs. Use the Editor's matching highlight to find the mismatch. |
+| `Invalid expression. Check for missing multiplication operator, missing or extra left parenthesis, or unbalanced delimiters.` | The parser cannot make sense of the expression as written. | Writing `2x` instead of `2*x`; implicit multiplication (not supported in MATLAB); missing operator. | Add explicit operators: `2*x`, not `2x`. Check for missing `*`, `+`, or other operators between terms. |
+| `Parse error at 'X': usage might be invalid MATLAB syntax.` | The parser encountered an unexpected token. | Using syntax from another language (e.g., `x++`, `{key: value}`); missing `end` keyword. | Review MATLAB syntax rules. Replace constructs from other languages with MATLAB equivalents. |
+| `The expression to the left of the equals sign is not a valid target for an assignment.` | The left side of `=` is something that cannot be assigned to. | Writing `x + 1 = y` instead of `y = x + 1`; trying to assign to a function call result like `sin(x) = 5`. | Put the variable to be assigned on the left side. Ensure the left side is a valid variable name or indexing expression. |
+
+### File Errors
+
+| Error Message | What It Means | Typical Cause | Fix |
+|---------------|---------------|---------------|-----|
+| `File 'X.m' not found.` | MATLAB cannot locate the specified file. | The file does not exist, is in a different folder, or has a different name. | Verify the filename and check `pwd`. Use `which('X')` to see if MATLAB can find it. Add the folder to the path with `addpath()`. |
+| `Function name 'X' must match the filename 'Y.m'.` | The `function` declaration name does not match the `.m` filename. | Renaming the file without updating the function line, or vice versa. | Make the function name on the first line match the filename exactly (case-sensitive on some OS). |
+| `Not enough input arguments.` | A function was called with fewer arguments than its signature requires. | Calling `myFun(x)` when `myFun` requires two inputs; running a function file as a script by clicking Run instead of calling it with arguments. | Provide all required arguments. If testing, call the function from the Command Window with test inputs rather than clicking Run. |
+| `Too many input arguments.` | A function was called with more arguments than it accepts. | Passing extra arguments; calling a built-in with unsupported options; confusing a script (which takes no arguments) with a function. | Check the function's signature with `help('X')`. Remove extra arguments. |
+| `Too many output arguments.` | More output variables were requested than the function returns. | `[a,b,c] = size(A,1)` when that form returns only one output. | Check how many outputs the function supports with `help('X')`. Reduce the number of output variables. |
+| `Invalid file identifier. Use fopen to generate a valid file identifier.` | A file I/O function received `-1` or an invalid `fid`. | `fopen` failed (file not found, permission denied) and returned `-1`, which was then passed to `fread`, `fprintf`, etc. | Always check the return value of `fopen`: `if fid == -1, error('Cannot open file'); end`. Verify the file path and permissions. |
+
+### Assignment Errors
+
+| Error Message | What It Means | Typical Cause | Fix |
+|---------------|---------------|---------------|-----|
+| `Unable to perform assignment because the size of the left side is M-by-N and the size of the right side is P-by-Q.` | The value being assigned does not fit into the specified location in the target array. | `A(1,:) = [1 2 3]` when `A` has 4 columns; replacing a row/column with a vector of the wrong length. | Ensure the right side has the same dimensions as the target slice. Check with `size()` on both sides. |
+| `Subscripted assignment dimension mismatch.` | (Legacy, pre-R2018a form) Same as "Unable to perform assignment because the size..." above. | Same causes: assigning a value whose shape does not match the indexed region. | Same fix: match dimensions of the source value to the target location. |
+| `In an assignment A(:) = B, the number of elements in A and B must be the same.` | `A(:) = B` requires that `numel(A)` equals `numel(B)`. | Trying to overwrite all elements of `A` with a `B` that has a different total element count. | Ensure `numel(A) == numel(B)`, or reshape `B` to match before assignment. |
+| `Assignment has more non-singleton rhs dimensions than non-singleton subscripts.` | The right side of an indexed assignment has more dimensions than the left side can accommodate. | Assigning a 2-D matrix into a single-index location, e.g., `A(1) = [1 2; 3 4]`. | Reduce the right side to a scalar for single-element assignment, or expand the indexing to cover the full target region. |
+
+### Singular Matrix Warnings
+
+| Error Message | What It Means | Typical Cause | Fix |
+|---------------|---------------|---------------|-----|
+| `Warning: Matrix is singular to working precision.` | The matrix has no inverse (determinant is effectively zero). The result will contain `Inf` or `NaN` values. | Calling `inv(A)` or using `A\b` on a matrix with linearly dependent rows/columns; a system of equations has no unique solution. | Check `det(A)` or `cond(A)` first. Use `pinv(A)` for a pseudo-inverse, or `rank(A)` to confirm rank deficiency. Reformulate the problem if the matrix is truly singular. |
+| `Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND = X.` | The matrix is nearly singular; results exist but may have large numerical errors. | A matrix with very large and very small entries; columns that are nearly linearly dependent; poorly scaled physical units. | Check `cond(A)`. Rescale the problem (normalize columns). Use `pinv(A)` or increase precision if possible. Consider whether the model itself is ill-posed. |
