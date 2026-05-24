@@ -37,7 +37,8 @@ coverage + natural/radiant finish (NOT color palette).
 - [x] 3/5 batch researched (`data/brand_certs_findings_3of5.json`, merged by `research_certs.py`):
       ethical set **56 → 77** brands. The 21 new ones are `verification_tier=not_verified` (independent
       ethics re-check not yet run on them).
-- [ ] Run the independent ethics-verification pass on the 21 new brands (then they leave `not_verified`).
+- [x] Independent ethics-verification run on the 21 new brands → all 77 now graded (0 `not_verified`).
+      Final tiers: 17 all5_verified · 22 minor_partials · 33 needs_docs · 5 refuted.
 
 ## Cross-source notes
 - BM↔Ulta product overlap: ~171 exact + ~69 fuzzy(≥0.85) = **~240 shared products** across 26 shared brands.
