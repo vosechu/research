@@ -5,6 +5,7 @@ separate from brands.parquet to preserve provenance. value: true/false/null(=unk
 See docs/specs and PLAN.md. Re-run after editing the findings JSON.
 """
 
+import glob
 import json
 import os
 
@@ -29,7 +30,15 @@ _VAL = {"true": True, "false": False, "unknown": None}
 
 
 def main():
-    findings = json.load(open(os.path.join(HERE, "data", "brand_certs_findings.json")))
+    # merge every data/brand_certs_findings*.json (base file first wins on conflicts)
+    files = sorted(glob.glob(os.path.join(HERE, "data", "brand_certs_findings*.json")))
+    seen, findings = set(), []
+    for fp in files:
+        for x in json.load(open(fp)):
+            k = (x["brand"], x["cert"])
+            if k not in seen:
+                seen.add(k)
+                findings.append(x)
     ts = now()
     rows = [
         {

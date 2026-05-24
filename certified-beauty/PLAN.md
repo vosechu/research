@@ -34,7 +34,10 @@ coverage + natural/radiant finish (NOT color palette).
 - [x] Fan-out: 40 brands at 4/5 researched for their single missing verifiable cert (cf/vegan/give_back/sustainable).
 - [x] Policy: keep both (retailer + research separate); `ethical` view = union, vegan "partial" counts, "unknown" doesn't.
 - [x] Result: **fully-certified set 25 → 56 brands** (47 strict-vegan). Evidence-cited, confidence-tiered.
-- [ ] Next batch: the **88 brands at 3/5** (research their missing verifiable certs to grow the set further).
+- [x] 3/5 batch researched (`data/brand_certs_findings_3of5.json`, merged by `research_certs.py`):
+      ethical set **56 → 77** brands. The 21 new ones are `verification_tier=not_verified` (independent
+      ethics re-check not yet run on them).
+- [ ] Run the independent ethics-verification pass on the 21 new brands (then they leave `not_verified`).
 
 ## Cross-source notes
 - BM↔Ulta product overlap: ~171 exact + ~69 fuzzy(≥0.85) = **~240 shared products** across 26 shared brands.
