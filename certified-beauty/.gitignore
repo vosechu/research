@@ -1,0 +1,10 @@
+# virtualenv
+.venv/
+__pycache__/
+*.pyc
+
+# cached scraped HTML (regenerable by the extractors)
+*.html
+
+# crawl resume state (regenerable; large)
+data/*_checkpoint.json
