@@ -4,6 +4,7 @@ Ulta brand PLPs carry no per-product categories, so we instead crawl each makeup
 category listing, tag every product with that category's breadcrumb leaf, and
 aggregate categories per product. Combo products land in multiple categories.
 """
+
 import json
 import os
 
@@ -13,13 +14,32 @@ BASE = "https://www.ulta.com/shop/makeup/"
 
 # Full makeup = all face + eyes + lips subcategories (nails excluded), from Ulta's taxonomy.
 CATEGORY_PATHS = [
-    "face/foundation", "face/concealer", "face/bb-cc-creams", "face/color-correcting",
-    "face/blush", "face/bronzer", "face/highlighter", "face/contouring",
-    "face/face-primer", "face/setting-spray-powder",
-    "eyes/eyeshadow", "eyes/eyeshadow-palettes", "eyes/eyeliner", "eyes/mascara",
-    "eyes/eyebrows", "eyes/eyelashes", "eyes/eye-primer-base", "eyes/lash-primer-serums",
-    "lips/lipstick", "lips/lip-gloss", "lips/lip-liner", "lips/lip-oil",
-    "lips/lip-balms", "lips/lip-plumpers", "lips/lip-stain", "lips/lip-tints-balms",
+    "face/foundation",
+    "face/concealer",
+    "face/bb-cc-creams",
+    "face/color-correcting",
+    "face/blush",
+    "face/bronzer",
+    "face/highlighter",
+    "face/contouring",
+    "face/face-primer",
+    "face/setting-spray-powder",
+    "eyes/eyeshadow",
+    "eyes/eyeshadow-palettes",
+    "eyes/eyeliner",
+    "eyes/mascara",
+    "eyes/eyebrows",
+    "eyes/eyelashes",
+    "eyes/eye-primer-base",
+    "eyes/lash-primer-serums",
+    "lips/lipstick",
+    "lips/lip-gloss",
+    "lips/lip-liner",
+    "lips/lip-oil",
+    "lips/lip-balms",
+    "lips/lip-plumpers",
+    "lips/lip-stain",
+    "lips/lip-tints-balms",
     "lips/lip-treatments",
 ]
 
@@ -45,6 +65,7 @@ def find_plr(state):
 
 def category_leaf(state):
     """Lowercased breadcrumb leaf = the retailer's own category name."""
+
     def find(o):
         if isinstance(o, dict):
             if o.get("type") == "Breadcrumbs":
@@ -58,6 +79,7 @@ def category_leaf(state):
                 r = find(v)
                 if r:
                     return r
+
     bc = find(state)
     if bc and bc.get("breadcrumbs"):
         return bc["breadcrumbs"][-1]["item"]["label"].strip().lower()
@@ -118,7 +140,7 @@ def main():
 
     # Aggregate: one row per (brand, url), categories = sorted set of labels.
     agg = {}  # (brand, url) -> {"name":, "categories": set}
-    for path, data in ck.items():
+    for data in ck.values():
         label = data["label"]
         for p in data["products"]:
             key = (p["brand"], p["url"])

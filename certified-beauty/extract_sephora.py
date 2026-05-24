@@ -7,16 +7,14 @@ Cruelty-free + planet-aware (sustainable) have NO category page (only client-sid
 and give_back has no Sephora concept -> all three stay False and are flagged for vendor research.
 cert_coverage = majority/minority of (clean products / total makeup products) per brand.
 """
-import os
+
 import re
-import json
 
 from playwright.sync_api import sync_playwright
 
-from common import now, slug_from_url, write_brands
+from common import extract_linkstore, get, now, slug_from_url, write_brands
 
 CDP = "http://localhost:9222"
-HERE = os.path.dirname(__file__)
 
 CERT_PAGES = {
     "clean": "https://www.sephora.com/shop/clean-makeup",
@@ -25,35 +23,10 @@ CERT_PAGES = {
 TOTAL_PAGE = "https://www.sephora.com/shop/makeup-cosmetics"  # denominator: total makeup per brand
 
 
-def parse_linkstore(html):
-    m = re.search(r'<script id="linkStore"[^>]*>', html)
-    i = html.index("{", m.end())
-    d = 0
-    ins = esc = False
-    for j in range(i, len(html)):
-        c = html[j]
-        if ins:
-            if esc:
-                esc = False
-            elif c == "\\":
-                esc = True
-            elif c == '"':
-                ins = False
-        else:
-            if c == '"':
-                ins = True
-            elif c == "{":
-                d += 1
-            elif c == "}":
-                d -= 1
-                if d == 0:
-                    return json.loads(html[i:j + 1])
-
-
 def brand_refinement(page, url):
     page.goto(url, wait_until="domcontentloaded", timeout=45000)
     page.wait_for_timeout(3500)
-    nc = parse_linkstore(page.content())["page"]["nthCategory"]
+    nc = extract_linkstore(page.content())["page"]["nthCategory"]
     out = {}
     for r in nc.get("refinements", []):
         vals = r.get("values") or []
@@ -67,12 +40,15 @@ def brand_refinement(page, url):
 
 
 def load_brands_list():
-    html = open(os.path.join(HERE, "sephora_brands.html"), encoding="utf-8").read()
-    data = parse_linkstore(html)
-    bl = [v for k, v in data["ssrProps"].items()
-          if "BrandsList" in k and "groupedBrands" in v][0]
-    return [{"name": b["shortName"], "url": "https://www.sephora.com" + b["targetUrl"]}
-            for g in bl["groupedBrands"].values() for b in g["brands"]]
+    """341 canonical Sephora brands (name+url) from the allowlisted /brands-list (plain fetch, no Akamai)."""
+    html = get("https://www.sephora.com/brands-list").text
+    data = extract_linkstore(html)
+    bl = [v for k, v in data["ssrProps"].items() if "BrandsList" in k and "groupedBrands" in v][0]
+    return [
+        {"name": b["shortName"], "url": "https://www.sephora.com" + b["targetUrl"]}
+        for g in bl["groupedBrands"].values()
+        for b in g["brands"]
+    ]
 
 
 def norm(s):
@@ -103,20 +79,31 @@ def main():
         vegan = k in ncert["vegan"]
         tot = ntotal.get(k)
         cn = ncert["clean"].get(k)
-        coverage = ("all" if (clean and tot and cn and cn / tot > 0.5) else "some")
-        rows.append({
-            "name": br["name"], "slug": slug_from_url(br["url"]), "source": "sephora",
-            "url": br["url"], "clean": clean, "cruelty_free": False, "vegan": vegan,
-            "sustainable": False, "give_back": False, "cert_coverage": coverage,
-            "scraped_at": ts,
-        })
+        coverage = "all" if (clean and tot and cn and cn / tot > 0.5) else "some"
+        rows.append(
+            {
+                "name": br["name"],
+                "slug": slug_from_url(br["url"]),
+                "source": "sephora",
+                "url": br["url"],
+                "clean": clean,
+                "cruelty_free": False,
+                "vegan": vegan,
+                "sustainable": False,
+                "give_back": False,
+                "cert_coverage": coverage,
+                "scraped_at": ts,
+            }
+        )
         if clean and vegan:
             both.append((br["name"], cn, ncert["vegan"].get(k), tot))
 
     path = write_brands(rows, "sephora")
     print(f"\nwrote {len(rows)} Sephora brands -> {path}")
-    print(f"clean: {sum(r['clean'] for r in rows)}  vegan: {sum(r['vegan'] for r in rows)}  "
-          f"clean&vegan: {len(both)}")
+    print(
+        f"clean: {sum(r['clean'] for r in rows)}  vegan: {sum(r['vegan'] for r in rows)}  "
+        f"clean&vegan: {len(both)}"
+    )
     print("\n=== Sephora clean & vegan brands (cf/sustainable/give_back need vendor research) ===")
     for name, cn, vn, tot in sorted(both):
         print(f"  {name:28} clean={cn} vegan={vn} total_makeup={tot}")

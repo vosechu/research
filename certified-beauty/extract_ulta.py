@@ -1,6 +1,4 @@
 """Extract Ulta brands + Conscious Beauty cert icons -> data/brands.parquet."""
-import os
-import sys
 
 from common import (
     extract_apollo_state,
@@ -12,7 +10,6 @@ from common import (
 )
 
 INDEX_URL = "https://www.ulta.com/brand/all"
-HTML_CACHE = os.path.join(os.path.dirname(__file__), "ulta_brands.html")
 
 # Ulta Conscious Beauty pillar icon -> our boolean column.
 ICON_MAP = {
@@ -22,16 +19,6 @@ ICON_MAP = {
     "SustainablePackaging": "sustainable",
     "PositiveImpact": "give_back",
 }
-
-
-def load_html(refresh=False):
-    if refresh or not os.path.exists(HTML_CACHE):
-        html = get(INDEX_URL).text
-        with open(HTML_CACHE, "w", encoding="utf-8") as f:
-            f.write(html)
-        return html
-    with open(HTML_CACHE, encoding="utf-8") as f:
-        return f.read()
 
 
 def parse_brands(html):
@@ -65,9 +52,7 @@ def parse_brands(html):
 
 
 def main():
-    refresh = "--refresh" in sys.argv
-    html = load_html(refresh=refresh)
-    rows = parse_brands(html)
+    rows = parse_brands(get(INDEX_URL).text)
     path = write_brands(rows, "ulta")
 
     cert_cols = list(ICON_MAP.values())

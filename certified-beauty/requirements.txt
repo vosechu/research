@@ -3,3 +3,4 @@ pyarrow
 requests
 playwright
 numpy
+ruff  # dev: lint+format

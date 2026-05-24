@@ -1,6 +1,6 @@
-# Fully-certified brands (all five certifications)
+# Fully-certified brands (retailer-asserted, all five certifications)
 
-_24 brands where clean + cruelty_free + vegan + sustainable + give_back are all true at some retailer. Grouped by which retailers in this dataset carry them._
+_24 brands where all five booleans are true at some retailer (before vendor research). Grouped by which retailers carry them._
 
 ## carried at: bluemercury, sephora, ulta
 - Dermalogica

@@ -7,6 +7,7 @@ Two passes, both tagged with a `confidence` level:
 
 Raw values only; no scoring/combination here.
 """
+
 import json
 import os
 import re
@@ -29,10 +30,10 @@ def find_facet_filters(state):
 
     def w(o):
         if isinstance(o, dict):
-            if (o.get("groupType") in WANT_GROUPS and o.get("applyFilterUrl")
-                    and o.get("title")):
-                out.append((o["groupType"].lower(), o["title"].strip().lower(),
-                            o["applyFilterUrl"]))
+            if o.get("groupType") in WANT_GROUPS and o.get("applyFilterUrl") and o.get("title"):
+                out.append(
+                    (o["groupType"].lower(), o["title"].strip().lower(), o["applyFilterUrl"])
+                )
             for v in o.values():
                 w(v)
         elif isinstance(o, list):
@@ -76,26 +77,35 @@ def retailer_asserted_rows():
         cat_rows = []
         for attribute, value, url in facets:
             for brand, purl in crawl_filtered(url):
-                cat_rows.append({"brand": brand, "product_url": purl,
-                                 "attribute": attribute, "value": value})
+                cat_rows.append(
+                    {"brand": brand, "product_url": purl, "attribute": attribute, "value": value}
+                )
         ck[path] = cat_rows
         json.dump(ck, open(CHECKPOINT, "w"))
-        print(f"  {path:30} facets={len({(r['attribute'],r['value']) for r in cat_rows})} "
-              f"rows={len(cat_rows)}")
+        print(
+            f"  {path:30} facets={len({(r['attribute'], r['value']) for r in cat_rows})} "
+            f"rows={len(cat_rows)}"
+        )
     # flatten
     return [r for rows in ck.values() for r in rows]
 
 
 # --- title inference lexicon: (compiled regex, attribute, value) ---
 _LEX = [
-    (r"skin\s*tint|tinted\s*moisturi[sz]er|\btint\b|sheer|light\s*coverage|veil|"
-     r"second\s*skin|barely[\s-]*there|no[\s-]*makeup|your\s*skin\s*but\s*better|"
-     r"serum\s*(foundation|concealer|tint)|water\s*tint|blur", "coverage", "light"),
-    (r"full[\s-]*coverage|high\s*coverage|total\s*coverage|maximum\s*coverage",
-     "coverage", "full"),
+    (
+        r"skin\s*tint|tinted\s*moisturi[sz]er|\btint\b|sheer|light\s*coverage|veil|"
+        r"second\s*skin|barely[\s-]*there|no[\s-]*makeup|your\s*skin\s*but\s*better|"
+        r"serum\s*(foundation|concealer|tint)|water\s*tint|blur",
+        "coverage",
+        "light",
+    ),
+    (r"full[\s-]*coverage|high\s*coverage|total\s*coverage|maximum\s*coverage", "coverage", "full"),
     (r"\bmatte\b|mattif", "finish", "matte"),
-    (r"\bdewy\b|radian|\bglow|luminous|lumini[sz]|gleam|\bsheen\b|lustre|luster",
-     "finish", "radiant"),
+    (
+        r"\bdewy\b|radian|\bglow|luminous|lumini[sz]|gleam|\bsheen\b|lustre|luster",
+        "finish",
+        "radiant",
+    ),
     (r"natural\s*finish|\bsatin\b|soft[\s-]*focus|skin[\s-]*like", "finish", "natural"),
 ]
 LEX = [(re.compile(p, re.I), a, v) for p, a, v in _LEX]
@@ -111,8 +121,14 @@ def title_inferred_rows():
         name = r["name"] or ""
         for rx, attribute, value in LEX:
             if rx.search(name):
-                rows.append({"brand": r["brand"], "product_url": r["url"],
-                             "attribute": attribute, "value": value})
+                rows.append(
+                    {
+                        "brand": r["brand"],
+                        "product_url": r["url"],
+                        "attribute": attribute,
+                        "value": value,
+                    }
+                )
     return rows
 
 
@@ -129,15 +145,23 @@ def main():
             if key in seen:
                 continue
             seen.add(key)
-            out.append({"brand": r["brand"], "source": "ulta",
-                        "product_url": r["product_url"], "attribute": r["attribute"],
-                        "value": r["value"], "confidence": confidence, "scraped_at": ts})
+            out.append(
+                {
+                    "brand": r["brand"],
+                    "source": "ulta",
+                    "product_url": r["product_url"],
+                    "attribute": r["attribute"],
+                    "value": r["value"],
+                    "confidence": confidence,
+                    "scraped_at": ts,
+                }
+            )
         return out
 
     all_rows = stamp(ra, "retailer_asserted") + stamp(ti, "inferred_from_title")
     out = write_attributes(all_rows, "ulta")
-    print(f"\nretailer_asserted rows: {len(stamp(ra,'retailer_asserted'))}")
-    print(f"inferred_from_title rows: {len(stamp(ti,'inferred_from_title'))}")
+    print(f"\nretailer_asserted rows: {len(stamp(ra, 'retailer_asserted'))}")
+    print(f"inferred_from_title rows: {len(stamp(ti, 'inferred_from_title'))}")
     print(f"wrote {len(all_rows)} attribute rows -> {out}")
 
 

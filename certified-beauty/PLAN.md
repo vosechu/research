@@ -18,26 +18,33 @@ coverage + natural/radiant finish (NOT color palette).
 - [x] Retailer-asserted attributes — `?coverage=` / `?finish=` filtered crawls (confidence=retailer_asserted)  *[running, ~done]*
 - [x] Title-inferred attributes — name lexicon (confidence=inferred_from_title)  *[same run]*
 
-## Sephora  (CDP-attach to real Chrome; certs via dedicated cert-category pages)
-- [x] Akamai bypass solved: CDP-attach to user-launched real Chrome (`:9222`). headless/automated Chrome is blocked.
-- [x] Brands: 341 names+urls from allowlisted `/brands-list` (curl OK).
-- [x] **Breakthrough:** client-side filters are unscrapable, BUT Sephora has dedicated cert *category* pages whose
-      SSR `linkStore` brand refinement IS the cert-filtered brand set: `/shop/clean-makeup` (41 brands),
-      `/shop/vegan-makeup` (51). Need cruelty-free + planet-aware URLs.
-- [ ] Certs: read brand refinement per cert page → booleans + counts. give_back←none (research vendor sites).
-- [ ] Products/attributes: limited (linkStore shows ~60/page, grid virtualized) — defer / best-effort.
+## Sephora  ✅ (CDP-attach to real Chrome; certs via dedicated cert-category pages)
+- [x] Akamai bypass: CDP-attach to user-launched real Chrome (`:9222`). headless/automated Chrome is blocked.
+- [x] Brands: 341 names+urls from allowlisted `/brands-list` (plain HTTP).
+- [x] Certs: clean (41) + vegan (51) via `/shop/clean-makeup` + `/shop/vegan-makeup` brand refinements.
+      cruelty-free/sustainable/give_back have NO scrapable source → vendor research.
+- [x] Products/attributes: NOT extracted (client-side/virtualized storefront). Sephora contributes brands+certs only.
 
-## Bluemercury  (Shopify — done)
+## Bluemercury  ✅ (Shopify)
 - [x] Brands (88 makeup vendors) + products (1,336) via `products.json`
 - [x] Raw retailer-asserted attributes (coverage/finish/natural_beauty/ingredient_preference); `sustainable` derived (31 brands)
-- [ ] **Research the 31 BM brands with ≥1 sustainability tag directly on vendor sites** for cruelty_free/vegan/clean/give_back
-      (Bluemercury exposes no discrete cf/vegan/clean/give_back tag). Same vendor-site research pattern as Sephora give-back.
+
+## Vendor research  ✅ (data/brand_certs.parquet ← brand_certs_findings.json via research_certs.py)
+- [x] Pilot (5 brands) validated the rubric; ILIA cross-check surfaced retailer-"vegan" = "has vegan range" vs strict 100%.
+- [x] Fan-out: 40 brands at 4/5 researched for their single missing verifiable cert (cf/vegan/give_back/sustainable).
+- [x] Policy: keep both (retailer + research separate); `ethical` view = union, vegan "partial" counts, "unknown" doesn't.
+- [x] Result: **fully-certified set 25 → 56 brands** (47 strict-vegan). Evidence-cited, confidence-tiered.
+- [ ] Next batch: the **88 brands at 3/5** (research their missing verifiable certs to grow the set further).
 
 ## Cross-source notes
 - BM↔Ulta product overlap: ~171 exact + ~69 fuzzy(≥0.85) = **~240 shared products** across 26 shared brands.
+- **Sephora has no product rows** → product-level "carries X" questions only cover Ulta + Bluemercury.
 
 ## Finish
-- [ ] `query.py` — DuckDB views + 4 queries; `all_five.md`
+- [x] `query.py` — views (brands/products/attributes/research/ethical/capability) + headline + routine queries; `all_five.md`
+- [x] `checks.py` — data-correctness suite (0 FAIL on clean data)
+- [x] `docs/specs/` — language-agnostic reproduction spec (audited by an independent subagent)
+- [ ] CSV export of most-ethical brands × face-makeup-category booleans, with independent verification agents
 
 ---
 
@@ -56,10 +63,12 @@ coverage + natural/radiant finish (NOT color palette).
    *virtualized* (~6 tiles in DOM until scroll). The only product-bearing API over the wire is sponsored ads
    (`api-developer.sephora.com/v1/browseSearchProduct`, public `x-api-key` — a publishable client key, NOT a secret,
    nothing to report; replaying it at volume would be a ToS issue, so we don't). Net: filtered cert/attribute data
-   requires interactive checkbox-clicking + de-virtualizing the grid → fragile & expensive. **Decision needed.**
-6. Sephora refinement vocab (for when/if we crack it): Coverage{light,sheer,medium,full}, Finish{natural,radiant,
-   matte,satin}; certs under Ingredient Preferences (cleanAtSephora, crueltyFree, vegan) + Shopping Preferences (planetAware).
-
-## Open decision
-Sephora cert extraction is the "bulk of the work" the handoff warned about. Options: (A) interactive
-click-filter automation per cert (fragile, slow), (B) Sephora names-only + defer certs, (C) drop Sephora.
+   requires interactive checkbox-clicking + de-virtualizing the grid → fragile & expensive. **Resolved:** use the
+   dedicated cert *category* pages (clean/vegan exist; cruelty-free/planet-aware do not) and send the rest to vendor research.
+6. **Dedicated cert category pages** (`/shop/clean-makeup`, `/shop/vegan-makeup`) expose the cert-filtered brand set
+   natively via `nthCategory` brand refinement — but only clean + vegan have one. `/beauty/planet-aware` is a curated
+   guide page (~25 featured brands, not a full faceted set); cruelty-free has none.
+7. **Encoding:** Ulta serves `text/html` with no charset → `requests.text` defaults to ISO-8859-1 and mangles accents
+   (`Avène`→`AvÃ¨ne`). Always force/sniff UTF-8 when charset is absent. (Caught by `checks.py` mojibake check.)
+8. **Retailer "vegan" = "has a vegan range", not "100% vegan brand"** (ILIA validation case). Kept both signals;
+   the `ethical` view counts research "partial"/mostly-vegan with the caveat note preserved.

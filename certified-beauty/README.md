@@ -1,62 +1,77 @@
 # Certified Beauty Dataset
 
 A small local dataset of **ethically-certified beauty brands** and their **makeup products**
-across Ulta, Sephora, and Bluemercury — built to answer questions like:
+across Ulta, Sephora, and Bluemercury, enriched with **vendor-site cert research** — built to answer
+questions like:
 
-- *Which fully-certified brands carry both a concealer and a bronzer?*
+- *Which fully-certified brands carry both a concealer and a bronzer?* → **bareMinerals**
+- *Which ethical brands carry a sheer skin-evener + cheekbone highlighter + eyeshadow + eyeliner?*
+  → **ILIA, PÜR Minerals, RMS Beauty, bareMinerals**
 - *Which certified brands lean "natural"* (sheer/light coverage, natural/radiant finish)?
 
 Stack: **DuckDB + Parquet**. No pandas required (DuckDB returns DataFrames if you want them).
 
 ## Status
 
-| Retailer | Brands | Products | Cert source | Notes |
+| Retailer | Brands | Products | Attributes | Cert source |
 |---|---|---|---|---|
-| **Ulta** | ✅ 956 | ✅ 4,406 (27 categories) | native 5-pillar Conscious Beauty badges | fully done, incl. coverage/finish attributes |
-| **Sephora** | ✅ 341 (names) | ⏳ | derive from Clean/Vegan/CF/PlanetAware filters | Akamai-protected; cert extraction is the hard part (see below) |
-| **Bluemercury** | ⏳ ~247 | ⏳ | clean-beauty collection only | Shopify `products.json` |
+| **Ulta** | 956 | 4,406 (27 categories) | 6,467 (coverage/finish) | native 5-pillar Conscious Beauty badges |
+| **Sephora** | 341 | — (Akamai/virtualized; see CLAUDE.md) | — | clean + vegan via cert-category pages |
+| **Bluemercury** | 88 | 1,336 | 6,822 (incl. raw tags) | sustainable from Shopify tags |
 
-See `PLAN.md` for the live checklist and engineering notes.
+**Vendor research** (`brand_certs.parquet`) fills the cert gaps Sephora/Bluemercury don't expose, growing
+the **fully-certified set from 25 → 56 brands**. See `PLAN.md` for the live checklist and engineering notes.
 
 ## Data model (`data/*.parquet`)
 
-**`brands`** — one row per (brand, source):
+**`brands`** — one row per (brand, source); the retailer-asserted cert booleans:
 `name, slug, source, url, clean, cruelty_free, vegan, sustainable, give_back, cert_coverage, scraped_at`
-A brand sold at multiple retailers gets one row per retailer; dedupe in queries.
 
 **`products`** — one row per (brand, source, product):
-`brand, source, name, url, categories[], scraped_at`
-`categories` are the retailer's own breadcrumb leaves, lowercased (e.g. `['concealer']`). Combo
-products carry multiple categories.
+`brand, source, name, url, categories[], scraped_at` — `categories` are the retailer's own breadcrumb
+leaves, lowercased; combo products carry multiple.
 
-**`product_attributes`** — tidy/long, one row per (product, attribute, value, source):
+**`product_attributes`** — tidy/long, one row per (product, attribute, value):
 `brand, source, product_url, attribute, value, confidence, scraped_at`
-- `attribute` ∈ {`coverage`, `finish`}; `value` lowercased (e.g. `light`, `sheer`, `natural`, `radiant`, `matte`).
-- `confidence` ∈ `retailer_asserted` | `brand_website_asserted` | `inferred_from_title` | `inferred_from_description`.
-  Today only `retailer_asserted` (from retailer filter facets) and `inferred_from_title` (name lexicon) are populated.
+- `attribute` ∈ {`coverage`, `finish`, `natural_beauty`, `ingredient_preference`}; `value` lowercased.
+- `confidence` ∈ `retailer_asserted` | `inferred_from_title` (others reserved).
 
-> **"Natural look"** is operationalized as light/sheer coverage + natural/radiant finish — *not* color palette.
+**`brand_certs`** — vendor-site cert research, kept separate to preserve provenance (source of truth is
+`brand_certs_findings.json`; load with `research_certs.py`):
+`brand, cert, value (bool; null=unknown), confidence, evidence_url, note, researched_at`
+- `confidence` ∈ `third_party_certified` > `brand_website_asserted` > `inferred` > `unknown`. Every
+  true/false cites an `evidence_url`.
+
+> **"Ethical"** = all five certs satisfied, where a cert counts if a retailer flags it **OR** research
+> confirms it (vegan "partial"/mostly-vegan counts, with the note preserved; "unknown" does not). See the
+> `ethical` view in `query.py`.
+> **"Natural look"** = light/sheer coverage + natural/radiant finish — *not* color palette.
 
 ## Setup
 
 ```bash
 python3 -m venv .venv
-./.venv/bin/pip install -r requirements.txt        # duckdb, pyarrow, requests, playwright
+./.venv/bin/pip install -r requirements.txt        # duckdb, pyarrow, requests, playwright, numpy, ruff
 ./.venv/bin/playwright install chromium            # only needed for Sephora
 ```
 
 ## Build the data
 
 ```bash
-./.venv/bin/python extract_ulta.py             # brands
-./.venv/bin/python extract_ulta_products.py    # products (category-page inversion)
-./.venv/bin/python extract_ulta_attributes.py  # coverage/finish (retailer + title-inferred)
+./.venv/bin/python extract_ulta.py             # Ulta brands
+./.venv/bin/python extract_ulta_products.py    # Ulta products (category-page inversion)
+./.venv/bin/python extract_ulta_attributes.py  # Ulta coverage/finish (retailer + title-inferred)
+./.venv/bin/python extract_bluemercury.py      # Bluemercury brands/products/attributes (Shopify)
+./.venv/bin/python extract_sephora.py          # Sephora brands + clean/vegan certs (needs debug Chrome)
+./.venv/bin/python research_certs.py           # load vendor-research findings -> brand_certs.parquet
+./.venv/bin/python checks.py                   # data-correctness checks (exits non-zero on FAIL)
+./.venv/bin/python query.py                    # views + analyses; writes all_five.md
 ```
 Crawls rate-limit to ~2 req/s and checkpoint to `data/*_checkpoint.json` (resumable; delete to re-crawl).
 Writers replace rows per `source`, so re-running one retailer is safe.
 
-**Sephora** is behind Akamai Bot Manager — automated browsers are blocked. You must launch a real
-Chrome with remote debugging and browse Sephora once, then the scraper attaches to it:
+**Sephora** is behind Akamai Bot Manager — automated browsers are blocked. Launch a real Chrome with
+remote debugging and browse Sephora once; the scraper attaches over CDP:
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
   --remote-debugging-port=9222 --user-data-dir="$HOME/.chrome-sephora-debug" https://www.sephora.com/
@@ -65,34 +80,30 @@ Chrome with remote debugging and browse Sephora once, then the scraper attaches 
 
 ## Query
 
+`query.py` registers `brands / products / attributes / research / ethical / capability` views and runs the
+headline + routine analyses. Quick start:
+
 ```python
 import duckdb
 con = duckdb.connect()
-con.sql("CREATE VIEW brands     AS SELECT * FROM 'data/brands.parquet'")
-con.sql("CREATE VIEW products   AS SELECT * FROM 'data/products.parquet'")
-con.sql("CREATE VIEW attributes AS SELECT * FROM 'data/product_attributes.parquet'")
+for v in ("brands", "products", "attributes"):
+    con.sql(f"CREATE VIEW {v} AS SELECT * FROM 'data/{v if v!='attributes' else 'product_attributes'}.parquet'")
 ```
 
 Headline — certified brands carrying both a concealer and a bronzer:
 ```sql
-WITH certified AS (
-  SELECT DISTINCT name FROM brands
-  WHERE clean AND cruelty_free AND vegan AND sustainable AND give_back
-)
+WITH certified AS (SELECT DISTINCT name FROM brands
+                   WHERE clean AND cruelty_free AND vegan AND sustainable AND give_back)
 SELECT c.name FROM certified c
-WHERE EXISTS (SELECT 1 FROM products p WHERE p.brand=c.name AND 'concealer' = ANY(p.categories))
-  AND EXISTS (SELECT 1 FROM products p WHERE p.brand=c.name AND 'bronzer'   = ANY(p.categories));
+WHERE EXISTS (SELECT 1 FROM products p WHERE p.brand=c.name AND list_contains(p.categories,'concealer'))
+  AND EXISTS (SELECT 1 FROM products p WHERE p.brand=c.name AND list_contains(p.categories,'bronzer'));
 ```
 
-"Natural" products (retailer-asserted), with brand certs:
-```sql
-SELECT DISTINCT a.brand, a.product_url
-FROM attributes a
-WHERE a.confidence='retailer_asserted'
-  AND a.attribute='coverage' AND a.value IN ('light','sheer');
-```
+## Scope & limitations
 
-## Scope
-
-Out of scope by design: ingredient lists, shade ranges, SPF values, sizes.
-Categories use each retailer's own taxonomy — no invented taxonomy.
+- Out of scope by design: ingredient lists, shade ranges, SPF, sizes. Categories use each retailer's own taxonomy.
+- **Sephora has no product rows** (client-side/virtualized storefront), so product-level questions only cover
+  Ulta + Bluemercury — Sephora-only ethical brands (e.g. Milk Makeup, Tower 28) can't be evaluated for "carries X".
+- Vendor research is **point-in-time** and evidence-cited; `clean`/`sustainable` are fuzzier than
+  cruelty-free/vegan (no universal standard). Re-run `research_certs.py` after editing the findings JSON.
+- See `docs/specs/` for the full language-agnostic reproduction spec.
