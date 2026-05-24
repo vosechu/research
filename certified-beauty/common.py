@@ -21,7 +21,7 @@ UA = (
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
 
-# Explicit schemas so every source writes identical types. See docs/specs/01-output-contract.md.
+# Explicit schemas so every source writes identical types. See docs/SPEC.md.
 BRANDS_SCHEMA = pa.schema(
     [
         ("name", pa.string()),

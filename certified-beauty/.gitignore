@@ -8,3 +8,7 @@ __pycache__/
 
 # crawl resume state (regenerable; large)
 data/*_checkpoint.json
+
+# generated/scraped data (regenerate via the extractors); keep research inputs + the CSV deliverable tracked
+data/*.parquet
+all_five.md

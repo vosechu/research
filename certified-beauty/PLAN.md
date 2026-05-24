@@ -47,7 +47,7 @@ coverage + natural/radiant finish (NOT color palette).
 ## Finish
 - [x] `query.py` — views (brands/products/attributes/research/ethical/capability) + headline + routine queries; `all_five.md`
 - [x] `checks.py` — data-correctness suite (0 FAIL on clean data)
-- [x] `docs/specs/` — language-agnostic reproduction spec (audited by an independent subagent)
+- [x] `docs/SPEC.md` — language-agnostic reproduction spec (audited by an independent subagent)
 - [x] CSV export (`generate_csv.py` → `data/ethical_brands_face_makeup.csv`): 56 ethical brands × face categories,
       retailer per cell, cert provenance, + independent verification (`brand_certs_verification.json`).
       **Independent agents confirmed only 13/56 as truly all-5** (common gaps: vegan=partial, undocumented give-back);

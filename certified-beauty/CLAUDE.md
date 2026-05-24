@@ -4,7 +4,7 @@ Local dataset of ethically-certified beauty brands + their makeup products acros
 Sephora, Bluemercury**, enriched with vendor-site cert research. Answers questions like "which
 fully-certified brands carry both a concealer and a bronzer" and "which ethical brands carry a
 sheer skin-evener + highlighter + eyeshadow + eyeliner". Stack: **DuckDB + Parquet** (no pandas).
-See `PLAN.md` for status, `docs/specs/` for the language-agnostic reproduction spec.
+See `PLAN.md` for status, `docs/SPEC.md` for the language-agnostic reproduction spec.
 
 ## Layout
 - `common.py` — HTTP (rate-limited ~2 req/s, real UA, UTF-8 charset fix), `match_balanced_json` (Ulta apollo +
@@ -27,7 +27,7 @@ python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt   # duckdb,
 Run order: extract_ulta{,_products,_attributes} → extract_bluemercury → extract_sephora → research_certs → checks → query.
 No `uv` on this machine — use the venv. macOS: don't use GNU `sed` flags. Lint with `./.venv/bin/ruff check .`
 
-## Data model (full schemas in docs/specs/01-output-contract.md)
+## Data model (full schemas in docs/SPEC.md)
 - `brands`: name, slug, source, url, 5 cert booleans, cert_coverage, scraped_at. Retailer-asserted.
 - `products`: brand, source, name, url, categories[] (lowercased retailer tags), scraped_at.
 - `product_attributes` (tidy): brand, source, product_url, attribute {coverage|finish|natural_beauty|ingredient_preference}, value, confidence, scraped_at.

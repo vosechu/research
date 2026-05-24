@@ -20,7 +20,7 @@ Stack: **DuckDB + Parquet**. No pandas required (DuckDB returns DataFrames if yo
 | **Bluemercury** | 88 | 1,336 | 6,822 (incl. raw tags) | sustainable from Shopify tags |
 
 **Vendor research** (`brand_certs.parquet`) fills the cert gaps Sephora/Bluemercury don't expose, growing
-the **fully-certified set from 25 → 56 brands**. See `PLAN.md` for the live checklist and engineering notes.
+the **fully-certified set from 25 → 77 brands**. See `PLAN.md` for the live checklist and engineering notes.
 
 ## Data model (`data/*.parquet`)
 
@@ -106,12 +106,13 @@ WHERE EXISTS (SELECT 1 FROM products p WHERE p.brand=c.name AND list_contains(p.
   Ulta + Bluemercury — Sephora-only ethical brands (e.g. Milk Makeup, Tower 28) can't be evaluated for "carries X".
 - Vendor research is **point-in-time** and evidence-cited; `clean`/`sustainable` are fuzzier than
   cruelty-free/vegan (no universal standard). Re-run `research_certs.py` after editing the findings JSON.
-- See `docs/specs/` for the full language-agnostic reproduction spec.
+- See `docs/SPEC.md` for the full language-agnostic reproduction spec.
 
 ## Headline deliverable
 
-`generate_csv.py` → `data/ethical_brands_face_makeup.csv`: the 56 fully-certified brands × major face-makeup
-categories, with the carrying retailer per cell, cert provenance, **and an independent-verification verdict**.
-Independent agents confirmed only **13/56** as genuinely all-five (frequent gaps: `vegan` is "has a vegan
-range" not 100% vegan; `give_back`/`sustainable` often undocumented) — while product existence was 45/45
-confirmed. Treat `independently_verified=all5_confirmed` as the high-confidence subset.
+`generate_csv.py` → `data/ethical_brands_face_makeup.csv`: ethical brands that carry ≥1 **core** face-makeup
+product (hair/skin/fragrance-only and primer/setting-only skincare brands dropped). One row per brand with cert
+provenance, each face category (`TRUE`/empty/`NULL`=unsearchable), the carrying `retailers` (where to buy), and a
+**`verification_tier`** from an independent re-check: `all5_verified` › `minor_partials` (only minor partials,
+e.g. vegan-except-beeswax) › `needs_docs` (a cert undocumented) › `refuted`. Sorted by tier, then name. The
+dominant cert gap is `vegan` ("has a vegan range" ≠ 100% vegan); product existence was independently confirmed.
