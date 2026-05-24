@@ -20,7 +20,7 @@ Stack: **DuckDB + Parquet**. No pandas required (DuckDB returns DataFrames if yo
 | **Bluemercury** | 88 | 1,336 | 6,822 (incl. raw tags) | sustainable from Shopify tags |
 
 **Vendor research** (`brand_certs.parquet`) fills the cert gaps Sephora/Bluemercury don't expose, growing
-the **fully-certified set from 25 → 77 brands**. See `PLAN.md` for the live checklist and engineering notes.
+the **fully-certified set from 25 → 77 brands**. See `docs/SPEC.md` for the reproduction spec.
 
 ## Data model (`data/*.parquet`)
 
@@ -58,9 +58,7 @@ python3 -m venv .venv
 ## Build the data
 
 ```bash
-./.venv/bin/python extract_ulta.py             # Ulta brands
-./.venv/bin/python extract_ulta_products.py    # Ulta products (category-page inversion)
-./.venv/bin/python extract_ulta_attributes.py  # Ulta coverage/finish (retailer + title-inferred)
+./.venv/bin/python extract_ulta.py             # Ulta brands + products + coverage/finish attributes
 ./.venv/bin/python extract_bluemercury.py      # Bluemercury brands/products/attributes (Shopify)
 ./.venv/bin/python extract_sephora.py          # Sephora brands + clean/vegan certs (needs debug Chrome)
 ./.venv/bin/python research_certs.py           # load vendor-research findings -> brand_certs.parquet

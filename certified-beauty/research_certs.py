@@ -2,7 +2,7 @@
 
 These are point-in-time, evidence-cited research results (NOT scraped retailer data); kept
 separate from brands.parquet to preserve provenance. value: true/false/null(=unknown).
-See docs/SPEC.md and PLAN.md. Re-run after editing the findings JSON.
+See docs/SPEC.md. Re-run after editing the findings JSON.
 """
 
 import glob
