@@ -1,6 +1,6 @@
 """Query scaffolding over the certified-beauty parquets + the spec queries and analyses.
 
-Run: ./.venv/bin/python query.py   (writes all_five.md, prints the rest)
+Run: ./.venv/bin/python query.py   (prints the spec queries + analyses)
 
 Views:
   brands / products / attributes  -- raw scraped data (retailer-asserted)
@@ -70,29 +70,10 @@ GROUP BY 1""")
 FULLY_CERTIFIED = "clean AND cruelty_free AND vegan AND sustainable AND give_back"
 
 
-# 1. Fully-certified brands (retailer-only, all five booleans at ANY source) -> all_five.md
-def all_five_md():
-    rows = con.sql(f"""
-        WITH five AS (SELECT DISTINCT name FROM brands WHERE {FULLY_CERTIFIED})
-        SELECT f.name, list_sort(list(DISTINCT b.source)) AS retailers
-        FROM five f JOIN brands b ON b.name = f.name
-        GROUP BY f.name ORDER BY f.name
-    """).fetchall()
-    lines = [
-        "# Fully-certified brands (retailer-asserted, all five certifications)",
-        "",
-        f"_{len(rows)} brands where all five booleans are true at some retailer "
-        "(before vendor research). Grouped by which retailers carry them._",
-        "",
-    ]
-    by_combo = {}
-    for name, retailers in rows:
-        by_combo.setdefault(tuple(retailers), []).append(name)
-    for combo in sorted(by_combo, key=lambda c: (-len(c), c)):
-        lines.append(f"## carried at: {', '.join(combo)}")
-        lines += [f"- {n}" for n in sorted(by_combo[combo])] + [""]
-    open("all_five.md", "w").write("\n".join(lines))
-    print(f"[1] wrote all_five.md ({len(rows)} retailer-only fully-certified brands)")
+# 1. Fully-certified baseline on retailer flags alone (before vendor research)
+def retailer_baseline():
+    n = con.sql(f"SELECT count(DISTINCT name) FROM brands WHERE {FULLY_CERTIFIED}").fetchone()[0]
+    print(f"[1] {n} fully-certified brands on retailer flags alone (before vendor research)")
 
 
 # 2. Category coverage for fully-certified brands
@@ -100,10 +81,10 @@ def category_coverage():
     print("\n[2] category coverage for fully-certified brands (top 25):")
     print(
         con.sql(f"""
-        WITH five AS (SELECT DISTINCT name FROM brands WHERE {FULLY_CERTIFIED}),
-             cats AS (SELECT p.brand, unnest(p.categories) AS cat
-                      FROM products p JOIN five f ON p.brand=f.name)
-        SELECT cat, count(DISTINCT brand) brands, count(*) products
+        WITH five AS (SELECT DISTINCT {_N.format("name")} bk FROM brands WHERE {FULLY_CERTIFIED}),
+             cats AS (SELECT {_N.format("p.brand")} bk, unnest(p.categories) AS cat
+                      FROM products p JOIN five f ON {_N.format("p.brand")}=f.bk)
+        SELECT cat, count(DISTINCT bk) brands, count(*) products
         FROM cats GROUP BY cat ORDER BY brands DESC, products DESC LIMIT 25""")
     )
 
@@ -113,11 +94,16 @@ def headline():
     print("\n[3] fully-certified brands carrying BOTH concealer and bronzer:")
     print(
         con.sql(f"""
-        WITH certified AS (SELECT DISTINCT name FROM brands WHERE {FULLY_CERTIFIED})
-        SELECT c.name FROM certified c
-        WHERE EXISTS (SELECT 1 FROM products p WHERE p.brand=c.name AND list_contains(p.categories,'concealer'))
-          AND EXISTS (SELECT 1 FROM products p WHERE p.brand=c.name AND list_contains(p.categories,'bronzer'))
-        ORDER BY c.name""")
+        WITH certified AS (
+          SELECT {_N.format("name")} bk, any_value(name) bname
+          FROM brands WHERE {FULLY_CERTIFIED} GROUP BY 1),
+        prod AS (SELECT {_N.format("brand")} bk, categories FROM products)
+        SELECT c.bname FROM certified c
+        WHERE EXISTS (SELECT 1 FROM prod p
+                      WHERE p.bk=c.bk AND list_contains(p.categories,'concealer'))
+          AND EXISTS (SELECT 1 FROM prod p
+                      WHERE p.bk=c.bk AND list_contains(p.categories,'bronzer'))
+        ORDER BY c.bname""")
     )
 
 
@@ -136,12 +122,10 @@ def ethical_summary():
     print(f"\n[5] fully-certified after vendor research (retailer ∪ research): {n} brands")
 
 
-# 6. "Natural routine" — ethical brands carrying a sheer skin-evener + highlighter + eyeshadow + eyeliner
+# 6. "Natural routine" — sheer skin-evener + highlighter + eyeshadow + eyeliner
 def natural_routine():
     print("\n[6] ethical brands carrying sheer base + highlighter + eyeshadow + eyeliner")
-    print(
-        "    (products available for Ulta + Bluemercury only; Sephora-only brands can't be evaluated):"
-    )
+    print("    (Ulta + Bluemercury products only; Sephora-only brands can't be evaluated):")
     print(
         con.sql(f"""
         SELECT e.bname AS brand FROM ethical e JOIN capability cap USING(bk)
@@ -152,7 +136,7 @@ def natural_routine():
 
 
 if __name__ == "__main__":
-    all_five_md()
+    retailer_baseline()
     category_coverage()
     headline()
     tag_sanity()

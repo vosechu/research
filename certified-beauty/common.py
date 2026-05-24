@@ -50,7 +50,8 @@ PRODUCTS_SCHEMA = pa.schema(
 )
 
 # Tidy/long attribute table. One row per (product, attribute, value, confidence).
-# confidence ∈ retailer_asserted | brand_website_asserted | inferred_from_title | inferred_from_description
+# confidence ∈ retailer_asserted | brand_website_asserted | inferred_from_title |
+#   inferred_from_description
 PRODUCT_ATTRIBUTES_SCHEMA = pa.schema(
     [
         ("brand", pa.string()),
@@ -162,7 +163,7 @@ def find_modules_by_type(obj, type_name):
 
 # --- parquet writing --------------------------------------------------------
 def _write_replacing_source(rows, schema, filename, source):
-    """Write `rows` for `source`, replacing any existing rows for that source (idempotent re-runs)."""
+    """Write `rows` for `source`, replacing existing rows for that source (idempotent)."""
     os.makedirs(DATA_DIR, exist_ok=True)
     path = os.path.join(DATA_DIR, filename)
     new_tbl = pa.Table.from_pylist(rows, schema=schema)

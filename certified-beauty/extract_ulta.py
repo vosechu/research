@@ -1,9 +1,9 @@
-"""Ulta extractor: brands, products, and coverage/finish attributes (plain HTTP, embedded apollo_state).
+"""Ulta extractor: brands, products, coverage/finish attributes (plain HTTP, apollo_state).
 
 Run `python extract_ulta.py [brands|products|attributes|all]` (default: all, in that order).
 - brands     -> data/brands.parquet              (5-pillar Conscious Beauty icons)
-- products   -> data/products.parquet            (category-page inversion; brand PLPs lack categories)
-- attributes -> data/product_attributes.parquet  (Coverage/Finish: retailer-asserted + title-inferred)
+- products   -> data/products.parquet            (category inversion; brand PLPs lack categories)
+- attributes -> data/product_attributes.parquet  (Coverage/Finish: retailer + title-inferred)
 Long crawls checkpoint to data/ulta_*_checkpoint.json (resumable; delete to re-crawl).
 """
 

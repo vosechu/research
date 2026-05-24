@@ -47,7 +47,7 @@ from scraped data: `brand, cert, value(bool; null=unknown), confidence, evidence
   Aggregate by (brand, url-sans-query) → sorted category set. (~4,406 products.)
 - **Coverage/Finish attrs:** retailer-asserted = facet groups with `groupType` COVERAGE/FINISH → each value's
   `applyFilterUrl` (`?coverage=light`) server-renders filtered results → membership. inferred_from_title = name
-  lexicon (skin tint/sheer/tinted→coverage light; full coverage→full; matte/dewy/radiant/natural→finish). (~6,467 rows.)
+  lexicon (skin tint/sheer/tinted→coverage light; full coverage→full; matte/dewy/radiant/natural→finish). (~6,468 rows.)
 
 ## Sephora (Akamai — needs a real browser)
 - `/` and `/brands-list` work via plain HTTP; everything else 403s, incl. **Playwright-launched Chrome (headless OR

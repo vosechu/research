@@ -40,12 +40,12 @@ def brand_refinement(page, url):
 
 
 def load_brands_list():
-    """341 canonical Sephora brands (name+url) from the allowlisted /brands-list (plain fetch, no Akamai)."""
+    """341 canonical Sephora brands (name+url) from /brands-list (plain fetch, no Akamai)."""
     html = get("https://www.sephora.com/brands-list").text
     data = extract_linkstore(html)
     bl = [v for k, v in data["ssrProps"].items() if "BrandsList" in k and "groupedBrands" in v][0]
     return [
-        {"name": b["shortName"], "url": "https://www.sephora.com" + b["targetUrl"]}
+        {"name": b["shortName"].strip(), "url": "https://www.sephora.com" + b["targetUrl"]}
         for g in bl["groupedBrands"].values()
         for b in g["brands"]
     ]

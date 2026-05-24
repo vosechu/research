@@ -38,7 +38,7 @@ SUSTAINABLE_TAGS = {"sustainable packaging", "eco friendly", "sustainable", "ref
 
 
 def crawl():
-    """Paginate the Shopify makeup collection; dedupe by handle (guard against overlapping pages)."""
+    """Paginate the Shopify makeup collection; dedupe by handle (overlapping pages)."""
     out = []
     seen = set()
     page = 1
@@ -79,14 +79,14 @@ def main():
     brand_sustain = {}
 
     for p in products:
-        vendor = p.get("vendor")
+        vendor = (p.get("vendor") or "").strip()
         tags = p.get("tags", [])
         url = PRODUCT_BASE + p["handle"]
         prod_rows.append(
             {
                 "brand": vendor,
                 "source": "bluemercury",
-                "name": p.get("title"),
+                "name": (p.get("title") or "").strip(),
                 "url": url,
                 "categories": categories_of(tags),
                 "scraped_at": ts,
