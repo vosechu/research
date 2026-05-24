@@ -108,6 +108,12 @@ for bk, bname in ethical:
         row[cat] = "TRUE" if srcs else ("" if hp else "NULL")
     rows.append(row)
 
+# keep only brands that actually carry >=1 face-makeup product (drop hair/skin/fragrance-only);
+# sort by verification tier (best first), then brand name.
+TIER_ORDER = {"all5_verified": 0, "minor_partials": 1, "needs_docs": 2, "refuted": 3, "not_verified": 4}
+rows = [r for r in rows if any(r[c] == "TRUE" for c in FACE)]
+rows.sort(key=lambda r: (TIER_ORDER.get(r["verification_tier"], 9), r["brand"].lower()))
+
 with open("data/ethical_brands_face_makeup.csv", "w", newline="") as f:
     w = csv.DictWriter(f, fieldnames=cols)
     w.writeheader()

@@ -1,79 +1,310 @@
 {
-  "AG Care": {"verdict": "all5_confirmed", "flags": ""},
-  "isima": {"verdict": "all5_confirmed", "flags": ""},
-  "Orebella": {"verdict": "all5_confirmed", "flags": ""},
-  "California Naturals": {"verdict": "all5_confirmed", "flags": ""},
-  "Earth Harbor": {"verdict": "all5_confirmed", "flags": ""},
-  "JVN": {"verdict": "all5_confirmed", "flags": ""},
-  "OSEA": {"verdict": "all5_confirmed", "flags": ""},
-  "Ethique Beauty": {"verdict": "all5_confirmed", "flags": ""},
-  "Eva Nyc": {"verdict": "all5_confirmed", "flags": ""},
-  "Peace Out": {"verdict": "all5_confirmed", "flags": ""},
-  "BLUME": {"verdict": "all5_confirmed", "flags": ""},
-  "PEACH & LILY": {"verdict": "all5_confirmed", "flags": ""},
-  "Mad Hippie": {"verdict": "all5_confirmed", "flags": ""},
-  "Buttah Skin": {"verdict": "some_unconfirmed", "flags": "sustainable:unclear"},
-  "Each & Every": {"verdict": "some_unconfirmed", "flags": "sustainable:partial; give_back:unclear"},
-  "Fur": {"verdict": "some_unconfirmed", "flags": "sustainable:unclear; give_back:unclear"},
-  "Milk Makeup": {"verdict": "some_unconfirmed", "flags": "sustainable:partial; give_back:unclear"},
-  "PÜR Minerals": {"verdict": "some_unconfirmed", "flags": "vegan:partial; sustainable:refuted; give_back:unclear"},
-  "Tatcha": {"verdict": "some_unconfirmed", "flags": "vegan:refuted"},
-  "Urban Veda": {"verdict": "some_unconfirmed", "flags": "give_back:unclear"},
-  "amika": {"verdict": "some_unconfirmed", "flags": "vegan:partial; give_back:unclear"},
-  "Hairstory": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Naked Sundays": {"verdict": "some_unconfirmed", "flags": "give_back:unclear"},
-  "RMS Beauty": {"verdict": "some_unconfirmed", "flags": "vegan:partial; give_back:unclear"},
-  "The INKEY List": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "VOESH": {"verdict": "some_unconfirmed", "flags": "sustainable:unclear; give_back:unclear"},
-  "bareMinerals": {"verdict": "some_unconfirmed", "flags": "give_back:unclear"},
-  "cocokind": {"verdict": "some_unconfirmed", "flags": "vegan:partial; give_back:partial"},
-  "HERBIVORE": {"verdict": "some_unconfirmed", "flags": "give_back:unclear"},
-  "Kopari Beauty": {"verdict": "some_unconfirmed", "flags": "vegan:partial; give_back:unclear"},
-  "Nemat": {"verdict": "some_unconfirmed", "flags": "sustainable:partial; give_back:unclear"},
-  "PAUME": {"verdict": "some_unconfirmed", "flags": "give_back:partial"},
-  "SACHEU": {"verdict": "some_unconfirmed", "flags": "sustainable:unclear; give_back:partial"},
-  "The Nue Co.": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Bloomeffects": {"verdict": "some_unconfirmed", "flags": "vegan:partial; give_back:unclear"},
-  "COOLA": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "ILIA": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Living Proof": {"verdict": "some_unconfirmed", "flags": "vegan:partial; clean:partial; sustainable:partial"},
-  "Nick Stenson Beauty": {"verdict": "some_unconfirmed", "flags": "sustainable:unclear; give_back:unclear"},
-  "Sol de Janeiro": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "The Ordinary": {"verdict": "some_unconfirmed", "flags": "clean:refuted"},
-  "Dermalogica": {"verdict": "some_unconfirmed", "flags": "vegan:partial; clean:unclear"},
-  "Evian Mineral Spray": {"verdict": "some_unconfirmed", "flags": "sustainable:partial; give_back:refuted"},
-  "Innersense Organic Beauty": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Luna Bronze": {"verdict": "some_unconfirmed", "flags": "sustainable:partial; give_back:unclear"},
-  "OCOA": {"verdict": "some_unconfirmed", "flags": "cruelty_free:partial; vegan:partial; sustainable:unclear"},
-  "Squishmallows Fragrances": {"verdict": "some_unconfirmed", "flags": "give_back:refuted"},
-  "Truly": {"verdict": "some_unconfirmed", "flags": "sustainable:unclear; give_back:unclear"},
-  "Briogeo": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "DIME": {"verdict": "some_unconfirmed", "flags": "give_back:unclear"},
-  "Farmacy": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "iota": {"verdict": "some_unconfirmed", "flags": "give_back:unclear"},
-  "OLEHENRIKSEN": {"verdict": "some_unconfirmed", "flags": "vegan:partial; give_back:unclear"},
-  "Peach Slices": {"verdict": "some_unconfirmed", "flags": "vegan:partial; clean:partial; sustainable:unclear; give_back:unclear"},
-  "Sunday Riley": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Undefined Beauty": {"verdict": "some_unconfirmed", "flags": "sustainable:unclear"},
-  "Bubble": {"verdict": "all5_confirmed", "flags": ""},
-  "LolaVie": {"verdict": "all5_confirmed", "flags": ""},
-  "Luna Daily": {"verdict": "all5_confirmed", "flags": ""},
-  "SEEN": {"verdict": "all5_confirmed", "flags": ""},
-  "Beekman 1802": {"verdict": "some_unconfirmed", "flags": "vegan:partial; sustainable:unclear; give_back:unclear"},
-  "First Aid Beauty": {"verdict": "some_unconfirmed", "flags": "vegan:partial; sustainable:unclear"},
-  "Hero Cosmetics": {"verdict": "some_unconfirmed", "flags": "give_back:unclear"},
-  "jane iredale": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Klairs": {"verdict": "some_unconfirmed", "flags": "give_back:partial"},
-  "KORRES": {"verdict": "some_unconfirmed", "flags": "vegan:partial; give_back:unclear"},
-  "Kreyòl Essence": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Mixed Chicks": {"verdict": "some_unconfirmed", "flags": "give_back:unclear"},
-  "MONDAY Haircare": {"verdict": "some_unconfirmed", "flags": "vegan:partial; clean:unclear"},
-  "Naturium": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Patchology": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Poppy & Pout": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Rael": {"verdict": "some_unconfirmed", "flags": "vegan:partial; sustainable:partial; give_back:unclear"},
-  "Saltair": {"verdict": "some_unconfirmed", "flags": "cruelty_free:partial"},
-  "Supergoop!": {"verdict": "some_unconfirmed", "flags": "vegan:partial"},
-  "Urban Hydration": {"verdict": "some_unconfirmed", "flags": "vegan:partial; sustainable:unclear"},
-  "Winky Lux": {"verdict": "some_unconfirmed", "flags": "vegan:partial"}
+  "AG Care": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "isima": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Orebella": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "California Naturals": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Earth Harbor": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "JVN": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "OSEA": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Ethique Beauty": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Eva Nyc": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Peace Out": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "BLUME": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "PEACH & LILY": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Mad Hippie": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Buttah Skin": {
+    "verdict": "some_unconfirmed",
+    "flags": "sustainable:unclear"
+  },
+  "Each & Every": {
+    "verdict": "some_unconfirmed",
+    "flags": "sustainable:partial; give_back:unclear"
+  },
+  "Fur": {
+    "verdict": "some_unconfirmed",
+    "flags": "give_back:unclear"
+  },
+  "Milk Makeup": {
+    "verdict": "some_unconfirmed",
+    "flags": "sustainable:partial"
+  },
+  "PÜR Minerals": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; sustainable:refuted; give_back:unclear"
+  },
+  "Tatcha": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:refuted"
+  },
+  "Urban Veda": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "amika": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Hairstory": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Naked Sundays": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "RMS Beauty": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "The INKEY List": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "VOESH": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "bareMinerals": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "cocokind": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; give_back:partial"
+  },
+  "HERBIVORE": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Kopari Beauty": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; give_back:unclear"
+  },
+  "Nemat": {
+    "verdict": "some_unconfirmed",
+    "flags": "sustainable:partial; give_back:unclear"
+  },
+  "PAUME": {
+    "verdict": "some_unconfirmed",
+    "flags": "give_back:partial"
+  },
+  "SACHEU": {
+    "verdict": "some_unconfirmed",
+    "flags": "give_back:partial"
+  },
+  "The Nue Co.": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Bloomeffects": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; give_back:unclear"
+  },
+  "COOLA": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "ILIA": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Living Proof": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; clean:partial; sustainable:partial"
+  },
+  "Nick Stenson Beauty": {
+    "verdict": "some_unconfirmed",
+    "flags": "sustainable:unclear"
+  },
+  "Sol de Janeiro": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "The Ordinary": {
+    "verdict": "some_unconfirmed",
+    "flags": "clean:refuted"
+  },
+  "Dermalogica": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; clean:unclear"
+  },
+  "Evian Mineral Spray": {
+    "verdict": "some_unconfirmed",
+    "flags": "sustainable:partial; give_back:refuted"
+  },
+  "Innersense Organic Beauty": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Luna Bronze": {
+    "verdict": "some_unconfirmed",
+    "flags": "sustainable:partial"
+  },
+  "OCOA": {
+    "verdict": "some_unconfirmed",
+    "flags": "cruelty_free:partial; vegan:partial"
+  },
+  "Squishmallows Fragrances": {
+    "verdict": "some_unconfirmed",
+    "flags": "give_back:refuted"
+  },
+  "Truly": {
+    "verdict": "some_unconfirmed",
+    "flags": "give_back:unclear"
+  },
+  "Briogeo": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "DIME": {
+    "verdict": "some_unconfirmed",
+    "flags": "give_back:unclear"
+  },
+  "Farmacy": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "iota": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "OLEHENRIKSEN": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; give_back:unclear"
+  },
+  "Peach Slices": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; clean:partial"
+  },
+  "Sunday Riley": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Undefined Beauty": {
+    "verdict": "some_unconfirmed",
+    "flags": "sustainable:unclear"
+  },
+  "Bubble": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "LolaVie": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Luna Daily": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "SEEN": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "Beekman 1802": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "First Aid Beauty": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Hero Cosmetics": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "jane iredale": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Klairs": {
+    "verdict": "some_unconfirmed",
+    "flags": "give_back:partial"
+  },
+  "KORRES": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; give_back:unclear"
+  },
+  "Kreyòl Essence": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Mixed Chicks": {
+    "verdict": "all5_confirmed",
+    "flags": ""
+  },
+  "MONDAY Haircare": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Naturium": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Patchology": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Poppy & Pout": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Rael": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; sustainable:partial"
+  },
+  "Saltair": {
+    "verdict": "some_unconfirmed",
+    "flags": "cruelty_free:partial"
+  },
+  "Supergoop!": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  },
+  "Urban Hydration": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial; sustainable:unclear"
+  },
+  "Winky Lux": {
+    "verdict": "some_unconfirmed",
+    "flags": "vegan:partial"
+  }
 }
