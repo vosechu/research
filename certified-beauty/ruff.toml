@@ -1,0 +1,7 @@
+line-length = 100
+
+[lint]
+# E line-length (E501) is enforced — wrap inline SQL across implicit string concats rather
+# than suppressing the rule. E=pycodestyle errors, F=pyflakes, I=isort, W=warnings,
+# B=bugbear (likely bugs), UP=pyupgrade (modernize syntax).
+select = ["E", "F", "I", "W", "B", "UP"]

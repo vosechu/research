@@ -1,0 +1,14 @@
+# virtualenv
+.venv/
+__pycache__/
+*.pyc
+
+# cached scraped HTML (regenerable by the extractors)
+*.html
+
+# crawl resume state (regenerable; large)
+data/*_checkpoint.json
+
+# NOTE: data/*.parquet ARE committed on purpose, so the dataset is queryable without
+# re-scraping (e.g. running query.py inside a Claude Project). Rebuild via the extractors
+# + research_certs.py if you need to refresh them.
