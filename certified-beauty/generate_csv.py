@@ -1,11 +1,10 @@
 """Export the most-ethical (fully-certified) brands x major face-makeup categories to CSV.
 
 Cell semantics (per the request):
-  - category cell  = semicolon list of retailers that carry that product type for the brand
-                     (from Ulta+Bluemercury products); a non-empty cell == TRUE + where to buy it.
-  - ""             = searched, brand has product data, but no product in that category.
+  - category cell  = "TRUE" if the brand has >=1 product of that type (Ulta+Bluemercury products).
+  - ""             = searched (brand has product data) but no product in that category.
   - "NULL"         = couldn't search (brand has no product data at all — e.g. Sephora-only).
-  - retailers col  = every store that carries the brand (incl. Sephora, from brands.parquet).
+  - retailers col  = every store that carries the brand (incl. Sephora) — use this for where to buy.
   - cert cols      = basis of each cert: 'retailer' | 'research' | 'research-partial'.
   - independently_verified / verification_flags = a second, independent web check of the all-5 claim
     (data/brand_certs_verification.json). 'all5_confirmed' vs 'some_unconfirmed' + which certs were
@@ -106,7 +105,7 @@ for bk, bname in ethical:
         srcs = [r[0] for r in con.sql(
             f"SELECT DISTINCT source FROM products WHERE regexp_replace(lower(brand),'[^a-z0-9]','','g')='{bk}' "
             f"AND list_has_any(categories, {vlist}) ORDER BY source").fetchall()]
-        row[cat] = ";".join(srcs) if srcs else ("" if hp else "NULL")
+        row[cat] = "TRUE" if srcs else ("" if hp else "NULL")
     rows.append(row)
 
 with open("data/ethical_brands_face_makeup.csv", "w", newline="") as f:
