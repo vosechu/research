@@ -7,13 +7,22 @@ Cell semantics (per the request):
   - "NULL"         = couldn't search (brand has no product data at all — e.g. Sephora-only).
   - retailers col  = every store that carries the brand (incl. Sephora, from brands.parquet).
   - cert cols      = basis of each cert: 'retailer' | 'research' | 'research-partial'.
+  - independently_verified / verification_flags = a second, independent web check of the all-5 claim
+    (data/brand_certs_verification.json). 'all5_confirmed' vs 'some_unconfirmed' + which certs were
+    flagged (e.g. "vegan:partial; give_back:unclear"). Only ~13/56 independently confirm all five.
 """
 import csv
+import json
+import os
 import re
 
 import query as Q  # registers brands/products/ethical views; reuse its connection
 
 con = Q.con
+
+# independent verification verdicts (brand -> {verdict, flags}); optional file
+_vpath = "data/brand_certs_verification.json"
+VERIF = json.load(open(_vpath)) if os.path.exists(_vpath) else {}
 
 
 def nb(s):
@@ -65,12 +74,32 @@ def cert_basis(bk, cert):
     return ""
 
 
-cols = ["brand", "retailers", *CERTS, *FACE]
+def verification_tier(flags):
+    """Grade the independent check so a broad line isn't penalized for minor exceptions.
+    all5_verified > minor_partials (only 'partial', e.g. vegan-except-honey/beeswax/carmine —
+    brand is trying) > needs_docs (a cert plausible but undocumented) > refuted (contradicted)."""
+    if not flags:
+        return "all5_verified"
+    statuses = [f.split(":", 1)[1].strip() for f in flags.split(";") if ":" in f]
+    if "refuted" in statuses:
+        return "refuted"
+    if "unclear" in statuses:
+        return "needs_docs"
+    if statuses and all(s == "partial" for s in statuses):
+        return "minor_partials"
+    return "needs_docs"
+
+
+verif_n = {nb(k): v for k, v in VERIF.items()}
+cols = ["brand", "retailers", *CERTS, "verification_tier", "verification_flags", *FACE]
 rows = []
 for bk, bname in ethical:
     row = {"brand": bname, "retailers": retailers.get(bk, "")}
     for c in CERTS:
         row[c] = cert_basis(bk, c)
+    v = verif_n.get(nb(bname), {})
+    row["verification_flags"] = v.get("flags", "")
+    row["verification_tier"] = verification_tier(v.get("flags", "")) if v else "not_verified"
     hp = bool(set(retailers.get(bk, "").split(";")) & SEARCHABLE)
     for cat, variants in FACE.items():
         vlist = "[" + ",".join("'" + v.replace("'", "''") + "'" for v in variants) + "]"

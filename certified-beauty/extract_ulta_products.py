@@ -101,8 +101,8 @@ def crawl_category(path):
         if label is None:
             label = category_leaf(state) or path.split("/")[-1].replace("-", " ")
         for it in plr.get("items", []):
-            brand = it.get("brandName")
-            name = it.get("productName")
+            brand = (it.get("brandName") or "").strip()
+            name = (it.get("productName") or "").strip()
             purl = (it.get("action") or {}).get("url")
             if brand and name and purl:
                 products.append({"brand": brand, "name": name, "url": purl.split("?")[0]})
@@ -141,10 +141,11 @@ def main():
     # Aggregate: one row per (brand, url), categories = sorted set of labels.
     agg = {}  # (brand, url) -> {"name":, "categories": set}
     for data in ck.values():
-        label = data["label"]
+        label = (data["label"] or "").strip()
         for p in data["products"]:
-            key = (p["brand"], p["url"])
-            entry = agg.setdefault(key, {"name": p["name"], "categories": set()})
+            brand, name = p["brand"].strip(), p["name"].strip()
+            key = (brand, p["url"])
+            entry = agg.setdefault(key, {"name": name, "categories": set()})
             entry["categories"].add(label)
 
     ts = now()

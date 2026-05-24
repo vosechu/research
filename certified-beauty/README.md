@@ -107,3 +107,11 @@ WHERE EXISTS (SELECT 1 FROM products p WHERE p.brand=c.name AND list_contains(p.
 - Vendor research is **point-in-time** and evidence-cited; `clean`/`sustainable` are fuzzier than
   cruelty-free/vegan (no universal standard). Re-run `research_certs.py` after editing the findings JSON.
 - See `docs/specs/` for the full language-agnostic reproduction spec.
+
+## Headline deliverable
+
+`generate_csv.py` → `data/ethical_brands_face_makeup.csv`: the 56 fully-certified brands × major face-makeup
+categories, with the carrying retailer per cell, cert provenance, **and an independent-verification verdict**.
+Independent agents confirmed only **13/56** as genuinely all-five (frequent gaps: `vegan` is "has a vegan
+range" not 100% vegan; `give_back`/`sustainable` often undocumented) — while product existence was 45/45
+confirmed. Treat `independently_verified=all5_confirmed` as the high-confidence subset.

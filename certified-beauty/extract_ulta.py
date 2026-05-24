@@ -32,7 +32,7 @@ def parse_brands(html):
     for group in sab.get("navItems", []):
         for item in group.get("items", []):
             action = item.get("action") or {}
-            name = action.get("label")
+            name = (action.get("label") or "").strip()
             url = action.get("url")
             if not name or not url:
                 continue

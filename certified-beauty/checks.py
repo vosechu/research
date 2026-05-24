@@ -78,6 +78,12 @@ rec(
     f"brands={b_m} products={p_m} attrs={a_m} categories={c_m}",
 )
 
+# 2b. leading/trailing whitespace in names (collides on normalized joins -> wrong cert merges)
+ws = (q1(f"SELECT count(*) FROM {B} WHERE name <> trim(name)")
+      + q1(f"SELECT count(*) FROM {P} WHERE brand <> trim(brand) OR name <> trim(name)")
+      + q1(f"SELECT count(*) FROM {A} WHERE brand <> trim(brand) OR value <> trim(value)"))
+rec("FAIL" if ws else "PASS", "no leading/trailing whitespace in names", f"{ws} fields")
+
 # 3. duplicates
 d = q1(f"SELECT count(*) FROM (SELECT name,source,count(*) c FROM {B} GROUP BY 1,2 HAVING c>1)")
 rec("FAIL" if d else "PASS", "brands unique (name,source)", f"{d} dup keys")
