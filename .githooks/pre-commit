@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Pre-commit: lint staged Ruby files with rubocop. Blocks the commit on any
+# offense. Enable once per clone:  git config core.hooksPath .githooks
+set -euo pipefail
+
+files="$(git diff --cached --name-only --diff-filter=ACM -- '*.rb')"
+[ -n "$files" ] || exit 0
+
+if ! command -v rubocop >/dev/null 2>&1; then
+  echo "pre-commit: rubocop not found (gem install rubocop)" >&2
+  exit 1
+fi
+
+# shellcheck disable=SC2086
+echo "$files" | xargs rubocop
