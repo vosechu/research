@@ -1,0 +1,11 @@
+[
+  {
+    "BanType": "uid",
+    "Reason": "Unknown player; joined during pre-restart window before password took effect",
+    "BannedPlayerUID": "jrAsFJNL+kYB+f6D3m5q6Emz",
+    "BannedPlayerName": "Fumar",
+    "BannedByPlayerUID": "atqwQdev3fyIgpNGWUpV36oO",
+    "BannedByPlayerName": "vosechu",
+    "BannedUntil": null
+  }
+]
