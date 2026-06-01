@@ -1,1 +1,8 @@
 docs/superpowers/
+.DS_Store
+.claude/settings.local.json
+*/.claude/settings.local.json
+.env
+**/.env
+vintage-story/snapshots/
+vintage-story/configs/vsrcon.json

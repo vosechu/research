@@ -1,0 +1,31 @@
+# Lint config for this repo's Ruby scripts. Run: rubocop <file>
+AllCops:
+  TargetRubyVersion: 3.2
+  NewCops: enable
+  Exclude:
+    - 'vintage-story/snapshots/**/*'
+
+# These are standalone scripts, not a library.
+Style/Documentation:
+  Enabled: false
+
+# Scripts legitimately run work at the top level.
+Style/TopLevelMethodDefinition:
+  Enabled: false
+
+# Standalone scripts bundle protocol + dispatcher + in-file tests in one module,
+# and test methods are legitimately long. Give them room; keep line length tight.
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/MethodLength:
+  Max: 45
+Metrics/AbcSize:
+  Max: 40
+Metrics/CyclomaticComplexity:
+  Max: 12
+Metrics/PerceivedComplexity:
+  Max: 12
+Naming/MethodParameterName:
+  MinNameLength: 2
+Layout/LineLength:
+  Max: 100
