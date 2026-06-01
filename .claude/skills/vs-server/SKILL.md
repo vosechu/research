@@ -101,6 +101,22 @@ dropped. Reliable alternatives:
 `serverconfig.json` and (initial) `playerdata.json` only load at server start. Mods load at start.
 Use the Host Havoc panel to restart — there's no remote restart from here.
 
+## Calendar speed (and other runtime-only settings)
+
+Calendar speed is **not** a worldconfig field — it's the runtime command `/time calendarspeedmul <x>`,
+which **does not persist**: a bare runtime set reverts to 0.5 on the next restart. To make it stick,
+put it in `serverconfig.json` → **`StartupCommands`** (newline-separated; runs every boot). This is
+the pattern for any runtime-only command you want permanent.
+
+- Currently set: `StartupCommands: "/time calendarspeedmul 0.4"` → server logs
+  `Base calendar speed mul 0.4 set. 1 day = 60 real life minutes` at boot.
+- Math: 60 real-min/day × 168 game-days-per-season (3 months × `daysPerMonth 56`) = **1 season per
+  real week** of *populated* time. Lower mul = slower; `24 ÷ mul = real-min per game day`.
+- Reminder: with `PassTimeWhenEmpty: false`, the clock only advances while ≥1 player is connected,
+  so "per real week" means populated time, not wall-clock.
+- Verify after a restart by grepping `server-main.log` for `calendar speed mul` (there's no RCON read
+  subcommand for it yet).
+
 ## Remote command access (RCON)
 
 The server runs the **VintageRCon** mod (`mods.vintagestory.at/vintagercon`). Source RCON protocol,
