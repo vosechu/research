@@ -6,7 +6,9 @@
 # This is the ONLY RCON path. There is no raw passthrough: the dispatcher maps a
 # fixed set of safe subcommands to literal server commands and rejects anything
 # else before a socket is opened. Destructive commands (/db prune, /wgen regen,
-# /ban, /kick, /stop, /role set, ...) cannot be expressed through this script.
+# /ban, /kick, /role set, ...) cannot be expressed through this script. The one
+# exception is `stop` (server shutdown -> Host Havoc auto-restarts), exposed
+# deliberately as the restart path.
 #
 # Usage:
 #   rcon.rb list <clients|banned|roles|privileges>   # the server requires the arg
@@ -17,6 +19,7 @@
 #   rcon.rb wc-set <field> <val>  # WRITE one worldconfig value (hook-gated)
 #   rcon.rb wc-dump [outfile]     # READ every worldconfig field -> typed JSON
 #   rcon.rb autosavenow | genbackup [name]
+#   rcon.rb stop                  # /stop — shuts the server down; Host Havoc auto-restarts
 #   rcon.rb --selftest            # run the in-file dispatcher tests
 #
 # wc-dump exists because a world's WorldConfiguration is baked into the savegame
@@ -129,6 +132,7 @@ module Rcon
     when 'info' then one_of('info', rest, INFO_SUBS)
     when *NOARG then no_args(sub, rest)
     when 'mods' then no_args(sub, rest, command: 'moddb list')
+    when 'stop' then no_args(sub, rest, command: 'stop') # server shutdown; HH auto-restarts
     when 'wc' then resolve_wc(rest)
     when 'wc-set' then resolve_wc_set(rest)
     when 'genbackup' then resolve_genbackup(rest)
@@ -249,6 +253,7 @@ module Rcon
       %w[help] => 'help',
       %w[autosavenow] => 'autosavenow',
       %w[mods] => 'moddb list',
+      %w[stop] => 'stop',
       %w[wc temporalStability] => 'worldconfig temporalStability',
       %w[wc-set caveIns true] => 'worldconfig caveIns true',
       %w[wc-set daysPerMonth 56] => 'worldconfig daysPerMonth 56',
@@ -261,7 +266,7 @@ module Rcon
       %w[wc-set], %w[wc-set caveIns], %w[wc-set caveIns true x],
       ['wc-set', 'caveIns', 'true false'], %w[wc-set bad;rm true], %w[wc-set caveIns ev;il],
       ['genbackup', 'bad name'],
-      %w[genbackup weird$name], %w[genbackup a b], %w[stop], %w[db prune], %w[wgen regen],
+      %w[genbackup weird$name], %w[genbackup a b], %w[stop x], %w[db prune], %w[wgen regen],
       %w[ban someone], %w[kick someone], %w[role x admin], %w[worldconfig x true]
     ]
     parse = [
@@ -326,6 +331,13 @@ if __FILE__ == $PROGRAM_NAME
       warn "rcon.rb: #{e.message}"
       exit e.code
     end
-    print Rcon.send_cmd(command)
+    begin
+      print Rcon.send_cmd(command)
+    rescue IOError, Errno::ECONNRESET
+      # /stop tears the socket down before the end-marker — expected, not a failure.
+      raise unless command == 'stop'
+
+      puts 'stop sent; server shutting down (Host Havoc should auto-restart)'
+    end
   end
 end

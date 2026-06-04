@@ -3,15 +3,19 @@
 
 # PreToolUse(Bash) guard for the Vintage Story workspace.
 #
-# Blocks WRITES to the live server so they can never run in auto / bypass mode:
+# Blocks RAW WRITES to the live server so they can never run ad-hoc in auto mode:
 #   - sftp.rb put/mput/rm/rmdir/rename/mkdir  (live SFTP writes)
 #   - rcon.rb wc-set                          (the RCON worldconfig write path)
-# Reads, pulls, snapshots, log tailing, and the read-only rcon.rb subcommands
-# pass through.
 #
-# A human approves by running the command themselves with the `!` prefix: that
-# is not a Claude tool call, so it never reaches this hook. There is no override
-# Claude can self-grant — that is the point.
+# Sanctioned write paths that DO pass (chuck opted in for this private server):
+#   - deploy.rb [--apply]   the safe mod-mirror wrapper (dry-run default, backs
+#                           up, protects engine dlls, prints plan before writing)
+#   - rcon.rb stop          server shutdown -> Host Havoc auto-restart
+# Reads, pulls, snapshots, log tailing, and read-only rcon.rb subcommands also pass.
+#
+# The deliberate gap: raw one-off SFTP writes and wc-set still require the `!`
+# prefix (not a Claude tool call, so they never reach this hook). The policy is
+# "deploy through the reviewed wrapper, not by hand."
 #
 # Self-test (no stdin):  .claude/hooks/vs-guard.rb --selftest
 require 'json'
@@ -49,6 +53,10 @@ module Guard
       'ruby scripts/rcon.rb list',
       'scripts/rcon.rb wc creatureStrength',
       'scripts/rcon.rb wc-dump snapshots/x/worldconfig.live.json',
+      'vintage-story/scripts/deploy.rb',
+      'vintage-story/scripts/deploy.rb --apply',
+      'vintage-story/scripts/rcon.rb stop',
+      'vintage-story/scripts/restart.rb',
       'git status',
       'echo "put this in the output"',
       '{"tool_input":{"command":"scripts/sftp.rb ls Mods"}}' # raw payload, read-only
