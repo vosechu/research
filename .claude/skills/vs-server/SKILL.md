@@ -17,25 +17,27 @@ Everything goes through the Ruby scripts in `scripts/`. SFTP is a verb CLI (one 
 | Live-tail server-main.log (read-only poll) | `vintage-story/scripts/tail-log.rb [interval=15s] [log=server-main.log]` |
 | Run a safe RCON command | `vintage-story/scripts/rcon.rb <subcommand> [args]` (subcommands in the RCON section) |
 | An SFTP op | `vintage-story/scripts/sftp.rb <verb> [args]` — `ls`/`get`/`put`/`mput`/`rm`/`rmdir`/`rename`/`mkdir` |
+| Deploy mods (mirror local → live) | `vintage-story/scripts/deploy.rb` (dry-run) / `deploy.rb --apply` — see **Deploying mods** |
+| Restart the server | `vintage-story/scripts/restart.rb` — autosave → stop → wait for port → scan for late errors |
 
 `sftp.rb` is a verb CLI over the `net-sftp` gem (password auth, no `expect`); `lib.rb` loads `.env` and opens the session.
 
 ## Safety boundary
 
-Two things keep this safe: `rcon.rb` emits only read-only/harmless-mutation commands plus the single `wc-set` worldconfig write — and `wc-set`, like every live write, is hook-blocked so it can't run as a Claude tool call — and the canonical/live file split. When in doubt, snapshot first and ask.
+Chuck opted in (2026-06-03) to let Claude deploy mods and restart this private friend-group server — but **through reviewed wrappers, not raw writes.** The policy: deploy via `deploy.rb` (diff-and-preserve, dry-run default) and restart via `restart.rb`; raw one-off SFTP writes and `wc-set` still require chuck's `!` prefix. When in doubt, snapshot/backup first.
 
-**Live-server writes are hook-enforced, not advisory.** A `PreToolUse` hook (`.claude/hooks/vs-guard.rb`, wired in `.claude/settings.json`) blocks, even in auto/bypass mode:
-- `sftp.rb` write verbs (`put`/`mput`/`rm`/`rmdir`/`rename`/`mkdir`) — config pushes, mod deploys, and
+**The hook is the floor, not advisory.** `PreToolUse` hook `.claude/hooks/vs-guard.rb` (wired in `.claude/settings.json`) blocks, even in auto/bypass mode:
+- `sftp.rb` write verbs (`put`/`mput`/`rm`/`rmdir`/`rename`/`mkdir`) — raw config pushes / ad-hoc file writes, and
 - the RCON worldconfig write path `rcon.rb wc-set`.
 
-Read-only RCON (`wc`, `wc-dump`, `list`, …) and SFTP `get`/`ls` pass through. Claude cannot self-grant an override; chuck approves by running the exact command himself with the `!` prefix, which bypasses the hook. Run `.claude/hooks/vs-guard.rb --selftest` to see what's blocked vs allowed.
+It explicitly ALLOWS the sanctioned wrappers (`deploy.rb`, `restart.rb`, `rcon.rb stop`) because they use net-sftp internally and don't match the raw-`sftp.rb` pattern. Reads/pulls/snapshots and read-only RCON pass too. Raw writes that the hook stops are run by chuck via `!` (not a tool call, so never reaches the hook). Run `.claude/hooks/vs-guard.rb --selftest` to see blocked vs allowed.
 
 | Tier | Operations |
 |---|---|
-| **Do autonomously** | `snapshot.rb`; `tail-log.rb`; read-only `rcon.rb` subcommands (`list`, `info`, `time`, `stats`, `weather`, `mods`, `wc <field>`, `wc-dump`, `autosavenow`, `genbackup`); SFTP `ls` and `get` into `snapshots/`. |
-| **Ask chuck first** | Pushing `configs/` UP (overwrites live); deploying or swapping mods; any SFTP `put`/`mput`; `rcon.rb wc-set` (worldconfig write); adding a new subcommand to `rcon.rb`; restarting (chuck does this from the Host Havoc panel). |
-| **Hook-blocked — only chuck, via `!`-prefix** | SFTP writes (`put`/`mput`/`rm`/`rename`/`mkdir`/…) and `rcon.rb wc-set`. Reachable in principle but `vs-guard.rb` stops them as tool calls; surface the exact command for chuck to run. |
-| **Never (not reachable from here)** | Other destructive RCON (`/db prune`, `/wgen regen`, `/ban`, `/kick`, `/role set`, `/op add`, `/stop`) — `rcon.rb` can't express these; run them from in-game admin chat or the Host Havoc web console. Overwriting `configs/` from a pull unless chuck wants to reset local state to live. |
+| **Do autonomously** | `snapshot.rb`; `tail-log.rb`; read-only `rcon.rb` (`list`, `info`, `time`, `stats`, `weather`, `mods`, `wc <field>`, `wc-dump`, `autosavenow`, `genbackup`); SFTP `ls`/`get`; **`deploy.rb` dry-run**. |
+| **Allowed — announce + show the plan first** | **`deploy.rb --apply`** (mod deploy via the safe mirror — always show the dry-run plan first), **`restart.rb`** / **`rcon.rb stop`** (restart). These pass the hook by design. Backup before deploys. |
+| **Hook-blocked — only chuck, via `!`-prefix** | Raw `sftp.rb` writes (`put`/`mput`/`rm`/`rename`/`mkdir`/…) incl. `configs/` pushes, and `rcon.rb wc-set`. Surface the exact command for chuck. |
+| **Never (not reachable)** | Other destructive RCON (`/db prune`, `/wgen regen`, `/ban`, `/kick`, `/role set`, `/op add`) — `rcon.rb` can't express these; run from in-game admin chat or the Host Havoc web console. Overwriting `configs/` from a pull unless resetting local to live. |
 
 ### Common SFTP one-liners
 
@@ -45,8 +47,7 @@ Read-only RCON (`wc`, `wc-dump`, `list`, …) and SFTP `get`/`ls` pass through. 
 # List remote mods
 scripts/sftp.rb ls Mods
 
-# Mirror local Mods folder up (mod deploy)
-scripts/sftp.rb mput '/tmp/vs_local_mods/*.zip' Mods
+# Mod deploys go through deploy.rb (see "Deploying mods"), NOT a raw mput.
 
 # Push playerdata + bans
 scripts/sftp.rb put configs/playerdata.json Playerdata/playerdata.json
@@ -61,11 +62,23 @@ scripts/sftp.rb get Playerdata/playersbanned.json configs/playersbanned.json
 
 `scripts/sftp.rb` loads `.env` via `lib.rb` and uses the `net-sftp` gem (native password auth — no `expect`/`sshpass`). One verb per call; remote paths resolve under `REMOTE_BASE`, local paths are literal.
 
+## Deploying mods
+
+`deploy.rb` mirrors the **local** mods folder (`LOCAL_MODS`) up to the server's `Mods/`. Local is the source of truth.
+
+- `deploy.rb` = **dry-run**: prints the exact UPLOAD (new/changed) + DELETE (server zips absent locally) plan, writes nothing. Always run this first and eyeball it.
+- `deploy.rb --apply` = execute. Engine assemblies (`VS*.dll`/`.pdb`) are never deleted. Take a `genbackup` first.
+- After apply, re-run the dry-run: an empty plan confirms live == local.
+
+**Reconcile drift BEFORE deploying — the live server can be edited out-of-band.** Verified 2026-06-03: the server `Mods/` had mods added directly via the panel that weren't in `LOCAL_MODS`. A blind mirror would have **deleted** them. So before `--apply`: `sftp.rb ls Mods`, diff against local, and `sftp.rb get` any server-only zips you want to keep down into `LOCAL_MODS` first (they then survive the mirror). `deploy.rb`'s dry-run is the safety check — never `--apply` without reading it.
+
+Mod-management (rustique, the local manager) lives in `vintage-story/CLAUDE.md`, including the gotcha that `rustique update` can leave the old version zip behind (→ duplicate-assembly load error) and the CommonLib-vs-Forked rule.
+
 ## Researching mods before deploy
 
 The server runs **1.22.x** — always confirm a mod targets it before deploying; ModDB version *tags* are authoritative, page blurbs and comments ("works on 1.22") are not.
 
-**Chuck's recommendation filter:** he wants added *challenge without grind*. Favor focused, single-purpose mods; skip RPG-progression systems (XSkills) and full early-game survival overhauls (Primitive Survival), and avoid kitchen-sink tweak packs (Dana Tweaks) — he finds them bloated. Anti-grind QoL is welcome; busywork and tedium are not.
+**Chuck's recommendation filter:** he wants added *challenge without grind*. Favor focused, single-purpose mods; skip RPG-progression systems (XSkills), and avoid kitchen-sink tweak packs (Dana Tweaks) — he finds them bloated. Anti-grind QoL is welcome; busywork and tedium are not. (He *did* accept **Primitive Survival v5** 2026-06-03 — v5.0.0 dropped the bloat that put him off, Better Stairs and the Particulator — so judge a mod's *current* release, not its reputation.)
 
 - **Compat + download URL in one shot:** `curl -s https://mods.vintagestory.at/api/mod/<urlalias-or-numeric-modid>` returns JSON with `mod.releases[]` (each has `filename`, `tags` = the exact game versions, `mainfile` = direct CDN download) and `mod.side`. Use `urlalias` (e.g. `temporalsreformed`) or the API **modid** — note the `/show/mod/<N>` page number is an *assetid*, NOT the API modid, so numeric lookups often resolve the wrong mod; prefer the alias.
 - **Client vs server side:** check the zip's `modinfo.json` `side`. `side: server` (or unset/universal) → deploy to `$REMOTE_BASE/Mods`. **`side: client` mods (e.g. render tweaks) must go in each player's own client Mods folder (`$LOCAL_MODS`), not the server** — VS does not push client mods to players. Verify a download first: `unzip -t` for integrity, `unzip -p <zip> modinfo.json` for modid/version/side/dependencies.
@@ -99,7 +112,18 @@ dropped. Reliable alternatives:
 ## Bouncing
 
 `serverconfig.json` and (initial) `playerdata.json` only load at server start. Mods load at start.
-Use the Host Havoc panel to restart — there's no remote restart from here.
+
+**Remote restart:** `restart.rb` does `autosavenow` → `stop` → wait-for-boot → late-error scan.
+Host Havoc **auto-restarts** the process after `/stop` (verified 2026-06-03, back in ~30s). The panel
+restart still works if HH ever stops auto-restarting (then `stop` leaves it down).
+
+**Readiness ≠ RCON.** RCON answers early (its mod loads before the world is ready), so "RCON responds"
+is a false ready signal — and errors often surface *after* the port opens (chunk gen, mod init, first
+join). Key readiness on the log line **`Dedicated Server now running on Port`**, then keep scanning for
+`[Error]`/`Exception` for a grace window. `restart.rb` does exactly this; if checking by hand, do the same.
+
+`genbackup` is deliberately **not** bundled into `restart.rb`: it's async on the server and a `stop`
+fired mid-backup truncates it. Back up as a separate step before risky changes (the deploy flow does).
 
 ## Calendar speed (and other runtime-only settings)
 
@@ -138,8 +162,9 @@ port `42425` (configurable in `ModConfig/vsrcon.json` — the filename is `vsrco
 | `wc-dump [outfile]` | loops `/worldconfig <field>` over every field | live worldconfig → typed JSON + drift table on stderr; used by `snapshot.rb` |
 | `autosavenow` | `/autosavenow` | flush a save |
 | `genbackup [name]` | `/genbackup [name]` | hot backup into `backups/` |
+| `stop` | `/stop` | shut the server down; Host Havoc auto-restarts. Prefer `restart.rb` (it waits + scans). |
 
-Run `scripts/rcon.rb --selftest` to exercise the accept/reject + parse logic offline (51 cases, no network).
+Run `scripts/rcon.rb --selftest` to exercise the accept/reject + parse logic offline (53 cases, no network).
 
 **`wc-set` is the one write path** and is deliberately the only command `vs-guard.rb` blocks on the
 RCON side. It can express *only* `worldconfig <field> <value>` with a space-free, charset-restricted
@@ -164,7 +189,7 @@ not a `resolve()` path (it's multi-command) — handled as a main-level mode lik
 each field still goes through `resolve(["wc", field])`. Note: top-level serverconfig fields
 (`AllowPvP`, `Password`, `AdvertiseServer`, …) are NOT save-baked and DO load from the file at startup.
 
-**RCON has full console privileges by design** — VintageRCon has no per-command privilege. Two layers stand in for that: (1) `rcon.rb` exposes no raw passthrough, so most destructive commands (`/db prune`, `/wgen regen`, `/ban`, `/kick`, `/role set`, `/op add`, `/stop`) simply can't be expressed — run those from in-game admin chat or the Host Havoc web console; (2) the one write that *is* expressible, `wc-set`, is stopped by `vs-guard.rb` as a tool call so only chuck can run it via `!`. To make another command routinely available, add a subcommand to `rcon.rb` — a deliberate, reviewable edit — and decide whether it belongs in the guard's block list; never add a raw client.
+**RCON has full console privileges by design** — VintageRCon has no per-command privilege. Two layers stand in for that: (1) `rcon.rb` exposes no raw passthrough, so most destructive commands (`/db prune`, `/wgen regen`, `/ban`, `/kick`, `/role set`, `/op add`) simply can't be expressed — run those from in-game admin chat or the Host Havoc web console; (2) the writes that *are* expressible — `wc-set` (hook-blocked, chuck-only) and `stop` (allowed, since chuck opted into remote restart) — are each a deliberate, reviewed subcommand. To make another command routinely available, add a subcommand to `rcon.rb` — a deliberate, reviewable edit — and decide whether it belongs in the guard's block list; never add a raw client.
 
 RCON port 42425 turned out to be reachable on Host Havoc without a panel request (verified live).
 If a future host blocks it, request the port through their panel/support.
