@@ -9,7 +9,7 @@ For any operation against chuck's Host Havoc VS server, invoke the **`vs-server`
 
 ## Folder roles
 
-- `configs/` — **canonical / source-of-truth**. Hand-edited, pushed UP to the server. **Never overwrite from a pull** unless you mean to reset local state to match live.
+- `configs/` — **canonical / source-of-truth for what to PUSH**. Hand-edited, pushed UP to the server. **Never overwrite from a pull** unless you mean to reset local state to match live. ⚠️ Source-of-truth for *intent*, NOT a mirror of *current live runtime*: this file can lag what's actually running. In particular `serverconfig.json`'s `LastLaunchMods` is server-written and goes stale — never assert what's loaded live from it. To answer "what's installed/running NOW," pull a fresh snapshot or query RCON via the `vs-server` skill.
 - `snapshots/<UTC-ts>/` — read-only live captures from `scripts/snapshot.rb`. For diffing, rollback, post-mortem.
 - `.env` — credentials. Gitignored.
 
@@ -44,56 +44,23 @@ disk next to the new one (seen with `carryonlib` 2026-06-02). Two zips of the sa
 duplicate-assembly load conflict (same failure class as the dual-CommonLib bug). After
 updating, `ls | grep <mod>` and `rm` any stale duplicate.
 
-## Mod evaluations
+⚠️ **`realsmoke` can't be fetched by rustique** (verified 2026-06-17): `sync`/`update` show a
+blank `latest_known_version` and `update` fails with `relative URL without a base` — moddb
+serves a malformed `mainfile`, so rustique's "no update" is a false signal. Fetch it by hand —
+pull the CDN URL from the API, download into the Mods folder, then `rm` the old `realsmoke_*.zip`:
+```sh
+curl -s https://mods.vintagestory.at/api/mod/realsmoke \
+  | ruby -rjson -e 'r=JSON.parse(STDIN.read)["mod"]["releases"][0]; puts r["mainfile"]'
+```
 
-Verdicts from community research (modDB comments + official forums; Reddit/YouTube were
-largely inaccessible — treat sentiment as drawn from the first two channels). Re-verify the
-version tag against the running game before deploying; these are point-in-time.
-
-Server philosophy driving these calls: **realism / "challenge without grind"**, small private
-friend group, novelty wanted at the ~2-season mark, some stability risk acceptable.
-
-_Evaluated 2026-06-02 (game 1.22.3):_
-
-| Mod | Verdict | Latest / tag | Key reason & risk |
-|---|---|---|---|
-| Immersive Fibercraft | ✅ add now | 1.2.9 / 1.22.3 | New spindle→wheel→loom tech tree; realism, no grind; updated hours ago. Risk: MP seat-sync (just fixed); check Synergy config. |
-| Stone Quarry Repack (fipil) | ✅ add (test first) | 3.6.3 / 1.22.3 | Late-game quarry project; only fork tagged 1.22.3 + save-safe. Risk: unresolved Attribute Rendering Library crash; slightly OP output. |
-| Butchering | ✅ add (test w/ modlist) | 1.13.4 / 1.22.2 | Best realism fit (haul→skin→bleed→butcher). Risk: compat-patch fragility — hard crash w/ FotSA:Sirenia; dev dropping non-animal patches for 1.22. |
-| VS Roofing | ⏸️ wait | 1.5.7 / 1.22.2 | Great for a build phase, but confirmed chisel-crash on 1.22.3 (no fix yet). Revisit when 1.22.3-tagged. |
-| Blood Trail | 🤏 optional | 1.2.2 / 1.22.3 | Cosmetic hunting polish, not a new loop; crash fixed in 1.2.2. Gotcha: clients need particles ≥30%. |
-| Millwright | ❌ skip | 1.3.3 / 1.22.3 | Vanilla 1.22 absorbed most of it (Large Windmill, in-wall axles, waterwheels); rest is OP + has acknowledged MP windmill-desync needing restarts. |
-| VS Airship (rivvion) | ✅ add (eyes open) | 1.1.4 / 1.22.3 | Lore-friendly airships (balloon cloth, coal-gas boilers, wind/inertia); build+explore late-game goal. Use rivvion's, NOT ViesCraft. Risk: moving-multiblock MP desync — reported mid-flight eject + airship vanished near a translocator. |
-| Medieval Architecture (mod 31540) | ✅ add | 1.1.1 / 1.22.0 | In-world archway building + drawbridges/portcullis/gates for a medieval base phase. Risk: CTD breaking small trapdoors in survival; pieces non-deconstructable; some brick textures error. **Requires Attribute Rendering Library** — same dep suspected in SQ-repack crashes; don't pair with fipil's repack untested. |
-| Molds Expanded (nails/strips) | ✅ add | 1.2.0 / 1.22.2 | Casts nails+strips from crucible pour (no anvil); 100u→4, balanced (won't trivialize smithing). Answer to the "nails & strips mold" ask. Confirm loads on 1.22.3. |
-
-### Installed-mod keep/remove decisions (2026-06-02)
-
-- **BetterTraders** (`BetterTradersv0.2.0.zip`) — **REMOVED locally 2026-06-02** (chuck's call). Was half-redundant: vanilla 1.22 rebuilt/individualized trader outposts (mod even dropped its wagons because of it); it still added trader villages + cold-climate structures, but chuck opted to drop it. **Live-deploy caveat:** worldgen-structure mod — snapshot first, clear `Cache/unpack`, watch for missing-block errors on already-explored trader sites. Distinct from `usefultraders` (trade deals, kept).
-- **ChiseledBlockRetention** (`ChiseledBlockRetention-2.0.1.zip`) — _keep._ It's room/cellar/greenhouse detection (makes chiseled walls count as solid so decorative-window rooms seal), NOT shape retention. Vanilla still uses strict room rules through 1.22.x. Tag stops at 1.22.2; pure JSON patch, verify no patch-error in log.
-- **stonequarry122hack** (`stonequarry122hack_3.5.2.zip`) — _dead, remove._ Archived/broken hack fork, superseded by installed `StoneQuarryForked.zip`. Cleanup candidate.
-
-### Full installed-mod audit (2026-06-02, game 1.22.3)
-
-**Library rule (load-bearing — getting it wrong blocks world load):** run **CommonLibForked only**,
-never alongside the original `CommonLib` — both ship `CommonLib.dll` → "assembly already loaded."
-The only consumers (`PlayerCorpseForked`, `StoneQuarryForked`) both want the Forked lib. Same
+⚠️ **Library rule (load-bearing — getting it wrong blocks world load):** run **CommonLibForked
+only**, never alongside the original `CommonLib` — both ship `CommonLib.dll` → "assembly already
+loaded." Its consumers (`PlayerCorpseForked`, `StoneQuarryForked`) both want the Forked lib. Same
 principle for any mod: never two versions/variants of one assembly in the folder at once.
 
-**Changes applied locally via rustique (still need chuck's `!` deploy to live):**
-- ❌ Deleted `commonlib@2.8.0` (old net8/1.21.1 — collided with Forked) and `stonequarry122hack@3.5.2` (dead).
-- ⬆️ Updated `fromgoldencombs` 2.0.6→2.0.7, `carryon` + `carryonlib` →`-pre.2` (only build tagged 1.22.3). Removed leftover `carryonlib-pre.1` zip.
+## Mod decisions & deploy log
 
-**Still to verify in-game (tags trail 1.22.3 but expected fine):** `knapster` (1.22.0-only tag — #1 smoke-test;
-also configure per-feature modes so it doesn't auto-trivialize crafting), `nohands` + `resinrelief` (client-side,
-abandoned, test then keep/drop), `stonequarryforked` (confirm 3.5.3 Forked-line; needs BackwardsCompat zip if
-the save ever ran original/repack Stone Quarry). `th3dungeon` = deprecation watch (vanilla absorbing dungeons).
-Everything else current and fine. `biggerpockets`+`knapster` are grind-reducers — identity call, not stability.
-
-**Mods installed this round (2026-06-02, local via rustique — still need `!` deploy to live):**
-`primitivesurvival` 5.0.5 (v5 already dropped Better Stairs + Particulator — the old RAM hog/bloat is gone; fireworks remain but harmless; config at `ModConfig/primitivesurvival5.json`, 60+ toggles), `foodshelves` 3.0.4 (kept for the **ice-cooling preservation** chain — vanilla 1.22 cabinets cover display only, no cooling), `longtermfood` 0.6.8, `mealrevariation` 3.1.1, `cartwrightscaravan` 1.9.1, `lichen` 1.6.4, `kevinsfurniture` 1.9.0, `bricklayers` 3.2.2 (+ `expandedmatter` 3.6.1 auto-pulled dep), `storagecontroller` 1.2.2, `vintagekinematics` 1.3.6, `wilderlandsethology` 1.0.3, `firstaidkits` 1.1.7.
-⚠️ **Shake out on a backup world before live deploy:** `vintagekinematics` (perf), `wilderlandsethology` (patches vanilla AI → most MP risk), `storagecontroller` (1.22.0-only tag).
-
-**Decided-to-add but NOT yet installed** (from the first eval batch + HIGH new picks): Immersive Fibercraft, Butchering, VS Airship (rivvion), Medieval Architecture (needs **Attribute Rendering Library**), Molds Expanded; plus Hydrate or Diedrate (`hydrateordiedrate`, friend's pick) + Immersive Body Temperature (`immersivebodytemperature`, pairs w/ HoD).
-**Skipped / on hold:** Millwright (skip), VS Roofing (hold — 1.22.3 chisel crash), Ithania Canned Goods (chose Long-term Food instead).
-**Rejected:** Expanded Foods/Wildcraft (dev-only on 1.22.3), Biodiversity (behind+RAM), Equus (unstable RC), Better Crates (broken), XDiseases/Seafarer (RPG/XP).
+Modlist evaluations, keep/remove calls, the staged-but-not-deployed queue, and the deploy
+log live in **@mod-decisions.md** — point-in-time research that rots, so it's kept out of
+this always-loaded file. Read it when picking, deploying, or auditing mods. Everything there
+is dated and needs re-verifying against moddb + the running game before you act on it.

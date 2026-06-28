@@ -72,7 +72,7 @@ Datatypes/ranges below are from the [World Configuration wiki](https://wiki.vint
 | daysPerMonth | int | 1+ | |
 | harshWinters | bool | true, false | |
 | blockGravity | enum | sandgravel, sandgravelsoil | |
-| caveIns | bool | true, false | wiki says `on`/`off` but that's outdated; server accepted `true` (verified 2026-06-01) |
+| caveIns | enum | on, off | ⚠️ **NOT a bool.** `true`/`Enabled` are silently accepted and read back via `wc` but do **not** arm cave-ins — only `on` actually engages the mechanic ([forum](https://www.vintagestory.at/forums/topic/11963-set-caveins-afterwards/), confirmed 2026-06-20). The earlier "server accepted `true` (2026-06-01)" note was a false positive: the command didn't error and the value read back, but no cave-in ever fired. The wiki's `on`/`off` was correct all along. With IOG installed, IOG owns cave-in logic (CaveinFix self-disables); collapses still require a block at 100% instability with air beneath it (≈large unsupported span), so narrow tunnels won't trigger them even when `on`. |
 | allowFallingBlocks | bool | true, false | |
 | allowFireSpread | bool | true, false | also a top-level serverconfig field |
 | allowUndergroundFarming | bool | true, false | |

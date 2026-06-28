@@ -81,7 +81,9 @@ The server runs **1.22.x** — always confirm a mod targets it before deploying;
 **Chuck's recommendation filter:** he wants added *challenge without grind*. Favor focused, single-purpose mods; skip RPG-progression systems (XSkills), and avoid kitchen-sink tweak packs (Dana Tweaks) — he finds them bloated. Anti-grind QoL is welcome; busywork and tedium are not. (He *did* accept **Primitive Survival v5** 2026-06-03 — v5.0.0 dropped the bloat that put him off, Better Stairs and the Particulator — so judge a mod's *current* release, not its reputation.)
 
 - **Compat + download URL in one shot:** `curl -s https://mods.vintagestory.at/api/mod/<urlalias-or-numeric-modid>` returns JSON with `mod.releases[]` (each has `filename`, `tags` = the exact game versions, `mainfile` = direct CDN download) and `mod.side`. Use `urlalias` (e.g. `temporalsreformed`) or the API **modid** — note the `/show/mod/<N>` page number is an *assetid*, NOT the API modid, so numeric lookups often resolve the wrong mod; prefer the alias.
+  - **The API also 404s on some *valid* aliases** (seen 2026-06: `hcwforked`, `ndlexpandedgrowthtrees`, `soildropsupdated` — the modid often differs from the page alias too, e.g. modid `hardcorewaterforked` vs page `hcwforked`). When `api/mod/<x>` returns `statuscode != "200"`/no `mod`, fall back to the **page**: `curl -s https://mods.vintagestory.at/<alias>` and grep the HTML for the real download link `href="/download/<fileid>/<file>.zip"` (download from `https://mods.vintagestory.at/download/<fileid>/...`), or `WebFetch` the page for version/compat. Try the modid (from the zip's `modinfo.json`) as an alternate API key before giving up.
 - **Client vs server side:** check the zip's `modinfo.json` `side`. `side: server` (or unset/universal) → deploy to `$REMOTE_BASE/Mods`. **`side: client` mods (e.g. render tweaks) must go in each player's own client Mods folder (`$LOCAL_MODS`), not the server** — VS does not push client mods to players. Verify a download first: `unzip -t` for integrity, `unzip -p <zip> modinfo.json` for modid/version/side/dependencies.
+- **What players must do after a deploy:** for `side: server` and `side: universal`/"both" mods, **nothing** — since VS 1.16 the server auto-downloads them to connecting clients (they're prompted on join). Only **pure `side: client`** mods need manual per-player install. So a normal `deploy.rb` + `restart.rb` of server/universal mods needs zero action from Lance & co. — don't tell players to hand-install those.
 
 ## File layout invariants
 
@@ -124,6 +126,13 @@ join). Key readiness on the log line **`Dedicated Server now running on Port`**,
 
 `genbackup` is deliberately **not** bundled into `restart.rb`: it's async on the server and a `stop`
 fired mid-backup truncates it. Back up as a separate step before risky changes (the deploy flow does).
+
+**Don't kick active players.** A restart bounces anyone connected. Before bouncing, `rcon.rb list
+clients`: if someone's on, **wait for an empty server or get chuck's explicit OK** — don't restart out
+from under them (chuck's standing preference for this private friend server). Pattern that works: a
+background poll on `list clients` that fires when the server empties, then restart. Note the file
+*deploy* (`deploy.rb --apply`) is safe to do while players are on — mods only load at the next boot, so
+uploading the zip doesn't touch the running session; only the restart needs an empty server.
 
 ## Calendar speed (and other runtime-only settings)
 

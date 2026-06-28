@@ -17,7 +17,7 @@
   "MaxClientsInQueue": 0,
   "WarnClientsAfterAfkSeconds": 0,
   "KickClientsAfterAfkSeconds": 0,
-  "PassTimeWhenEmpty": false,
+  "PassTimeWhenEmpty": true,
   "MasterserverUrl": "http://masterserver.vintagestory.at/api/v1/servers/",
   "ModDbUrl": "https://mods.vintagestory.at/",
   "ClientConnectionTimeout": 150,
