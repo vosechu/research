@@ -17,26 +17,20 @@ Everything goes through the Ruby scripts in `scripts/`. SFTP is a verb CLI (one 
 | Live-tail server-main.log (read-only poll) | `vintage-story/scripts/tail-log.rb [interval=15s] [log=server-main.log]` |
 | Run a safe RCON command | `vintage-story/scripts/rcon.rb <subcommand> [args]` (subcommands in the RCON section) |
 | An SFTP op | `vintage-story/scripts/sftp.rb <verb> [args]` — `ls`/`get`/`put`/`mput`/`rm`/`rmdir`/`rename`/`mkdir` |
-| Deploy mods (mirror local → live) | `vintage-story/scripts/deploy.rb` (dry-run) / `deploy.rb --apply` — see **Deploying mods** |
+| Promote local mods → staged | `vintage-story/scripts/stage-mods.rb` (dry-run) / `stage-mods.rb --apply` — see **Deploying mods** |
+| Deploy mods (mirror staged → live) | `vintage-story/scripts/deploy.rb` (dry-run) / `deploy.rb --apply` — see **Deploying mods** |
 | Restart the server | `vintage-story/scripts/restart.rb` — autosave → stop → wait for port → scan for late errors |
 
 `sftp.rb` is a verb CLI over the `net-sftp` gem (password auth, no `expect`); `lib.rb` loads `.env` and opens the session.
 
 ## Safety boundary
 
-Chuck opted in (2026-06-03) to let Claude deploy mods and restart this private friend-group server — but **through reviewed wrappers, not raw writes.** The policy: deploy via `deploy.rb` (diff-and-preserve, dry-run default) and restart via `restart.rb`; raw one-off SFTP writes and `wc-set` still require chuck's `!` prefix. When in doubt, snapshot/backup first.
-
-**The hook is the floor, not advisory.** `PreToolUse` hook `.claude/hooks/vs-guard.rb` (wired in `.claude/settings.json`) blocks, even in auto/bypass mode:
-- `sftp.rb` write verbs (`put`/`mput`/`rm`/`rmdir`/`rename`/`mkdir`) — raw config pushes / ad-hoc file writes, and
-- the RCON worldconfig write path `rcon.rb wc-set`.
-
-It explicitly ALLOWS the sanctioned wrappers (`deploy.rb`, `restart.rb`, `rcon.rb stop`) because they use net-sftp internally and don't match the raw-`sftp.rb` pattern. Reads/pulls/snapshots and read-only RCON pass too. Raw writes that the hook stops are run by chuck via `!` (not a tool call, so never reaches the hook). Run `.claude/hooks/vs-guard.rb --selftest` to see blocked vs allowed.
+Chuck opted in (2026-06-03) to let Claude deploy mods and restart this private friend-group server via reviewed wrappers (`deploy.rb`, `restart.rb`). On 2026-07-05 he removed the `PreToolUse` hook (`.claude/hooks/vs-guard.rb`, wired via `.claude/settings.json`) that had technically blocked raw `sftp.rb` writes and `rcon.rb wc-set` — those are now reachable as direct tool calls, no `!`-prefix required. There is no technical backstop anymore; the tiers below are **policy, not enforcement** — follow them because they're the right level of care for a live shared server, not because anything will stop you if you don't.
 
 | Tier | Operations |
 |---|---|
 | **Do autonomously** | `snapshot.rb`; `tail-log.rb`; read-only `rcon.rb` (`list`, `info`, `time`, `stats`, `weather`, `mods`, `wc <field>`, `wc-dump`, `autosavenow`, `genbackup`); SFTP `ls`/`get`; **`deploy.rb` dry-run**. |
-| **Allowed — announce + show the plan first** | **`deploy.rb --apply`** (mod deploy via the safe mirror — always show the dry-run plan first), **`restart.rb`** / **`rcon.rb stop`** (restart). These pass the hook by design. Backup before deploys. |
-| **Hook-blocked — only chuck, via `!`-prefix** | Raw `sftp.rb` writes (`put`/`mput`/`rm`/`rename`/`mkdir`/…) incl. `configs/` pushes, and `rcon.rb wc-set`. Surface the exact command for chuck. |
+| **Allowed — announce + show the plan first** | **`deploy.rb --apply`**, **`restart.rb`** / **`rcon.rb stop`**, raw `sftp.rb` writes (`put`/`mput`/`rm`/`rename`/`mkdir`/…) incl. `configs/` pushes, and `rcon.rb wc-set`. Show the exact command/diff before running it. Backup before deploys and config pushes. |
 | **Never (not reachable)** | Other destructive RCON (`/db prune`, `/wgen regen`, `/ban`, `/kick`, `/role set`, `/op add`) — `rcon.rb` can't express these; run from in-game admin chat or the Host Havoc web console. Overwriting `configs/` from a pull unless resetting local to live. |
 
 ### Common SFTP one-liners
@@ -64,15 +58,16 @@ scripts/sftp.rb get Playerdata/playersbanned.json configs/playersbanned.json
 
 ## Deploying mods
 
-`deploy.rb` mirrors the **local** mods folder (`LOCAL_MODS`) up to the server's `Mods/`. Local is the source of truth.
+`deploy.rb` mirrors a **staged** mods folder (`STAGED_MODS`, `vintage-story/staged-mods/`, gitignored) up to the server's `Mods/`. `STAGED_MODS` is the source of truth for deploys — **not** the live game client's own mods folder (`LOCAL_MODS`, rustique's install target). The two are deliberately decoupled: `stage-mods.rb` promotes from `LOCAL_MODS` into `STAGED_MODS` as an explicit step, so troubleshooting chuck's live client folder (e.g. clearing it to fix a version mismatch after a deploy but before a restart — happened 2026-07-04) can't silently change what `deploy.rb` thinks should be live.
 
-- `deploy.rb` = **dry-run**: prints the exact UPLOAD (new/changed) + DELETE (server zips absent locally) plan, writes nothing. Always run this first and eyeball it.
+- `stage-mods.rb` = promote local→staged. Dry-run by default (shows COPY/REMOVE plan), `--apply` to write. Run this once rustique updates/installs are ready to go out.
+- `deploy.rb` = **dry-run**: prints the exact UPLOAD (new/changed) + DELETE (server zips absent from staged) plan, writes nothing. Always run this first and eyeball it.
 - `deploy.rb --apply` = execute. Engine assemblies (`VS*.dll`/`.pdb`) are never deleted. Take a `genbackup` first.
-- After apply, re-run the dry-run: an empty plan confirms live == local.
+- After apply, re-run the dry-run: an empty plan confirms live == staged.
 
-**Reconcile drift BEFORE deploying — the live server can be edited out-of-band.** Verified 2026-06-03: the server `Mods/` had mods added directly via the panel that weren't in `LOCAL_MODS`. A blind mirror would have **deleted** them. So before `--apply`: `sftp.rb ls Mods`, diff against local, and `sftp.rb get` any server-only zips you want to keep down into `LOCAL_MODS` first (they then survive the mirror). `deploy.rb`'s dry-run is the safety check — never `--apply` without reading it.
+**Reconcile drift BEFORE deploying — the live server can be edited out-of-band.** Verified 2026-06-03: the server `Mods/` had mods added directly via the panel that weren't staged. A blind mirror would have **deleted** them. So before `--apply`: `sftp.rb ls Mods`, diff against staged, and `sftp.rb get` any server-only zips you want to keep down into `STAGED_MODS` first (they then survive the mirror). `deploy.rb`'s dry-run is the safety check — never `--apply` without reading it.
 
-Mod-management (rustique, the local manager) lives in `vintage-story/CLAUDE.md`, including the gotcha that `rustique update` can leave the old version zip behind (→ duplicate-assembly load error) and the CommonLib-vs-Forked rule.
+Mod-management (rustique, the local manager) lives in `vintage-story/CLAUDE.md`, including the gotcha that `rustique update` can leave the old version zip behind (→ duplicate-assembly load error) and the CommonLib-vs-Forked rule. Rustique always operates on `LOCAL_MODS` (the live client folder) — remember to run `stage-mods.rb` before `deploy.rb` once changes there are ready to go out.
 
 ## Researching mods before deploy
 
@@ -119,6 +114,10 @@ dropped. Reliable alternatives:
 Host Havoc **auto-restarts** the process after `/stop` (verified 2026-06-03, back in ~30s). The panel
 restart still works if HH ever stops auto-restarting (then `stop` leaves it down).
 
+**Run `restart.rb` in the background** (it polls for up to `TRIES × POLL` seconds waiting for boot,
+currently ~10 min, plus a post-boot error-scan window) — don't block the session on it. Check the
+result when the background task notification arrives instead of waiting synchronously.
+
 **Readiness ≠ RCON.** RCON answers early (its mod loads before the world is ready), so "RCON responds"
 is a false ready signal — and errors often surface *after* the port opens (chunk gen, mod init, first
 join). Key readiness on the log line **`Dedicated Server now running on Port`**, then keep scanning for
@@ -127,12 +126,13 @@ join). Key readiness on the log line **`Dedicated Server now running on Port`**,
 `genbackup` is deliberately **not** bundled into `restart.rb`: it's async on the server and a `stop`
 fired mid-backup truncates it. Back up as a separate step before risky changes (the deploy flow does).
 
-**Don't kick active players.** A restart bounces anyone connected. Before bouncing, `rcon.rb list
-clients`: if someone's on, **wait for an empty server or get chuck's explicit OK** — don't restart out
-from under them (chuck's standing preference for this private friend server). Pattern that works: a
-background poll on `list clients` that fires when the server empties, then restart. Note the file
-*deploy* (`deploy.rb --apply`) is safe to do while players are on — mods only load at the next boot, so
-uploading the zip doesn't touch the running session; only the restart needs an empty server.
+**Don't kick active players.** A restart bounces anyone connected. `restart.rb` now checks `list
+clients` itself (added 2026-07-05) and **aborts if anyone's online** — pass `--force` to override, or
+just wait for an empty server / get chuck's explicit OK (his standing preference for this private
+friend server). Pattern that works: a background poll on `list clients` that fires when the server
+empties, then restart. Note the file *deploy* (`deploy.rb --apply`) is safe to do while players are
+on — mods only load at the next boot, so uploading the zip doesn't touch the running session; only
+the restart needs an empty server.
 
 ## Calendar speed (and other runtime-only settings)
 
@@ -167,7 +167,7 @@ port `42425` (configurable in `ModConfig/vsrcon.json` — the filename is `vsrco
 | `mods` | `/moddb list` | loaded mods |
 | `help` | `/help` | server command list |
 | `wc <field>` | `/worldconfig <field>` | **read only** — one field, no value accepted |
-| `wc-set <field> <value>` | `/worldconfig <field> <value>` | **write** — one field + one charset-safe value; **hook-blocked**, chuck-only via `!` |
+| `wc-set <field> <value>` | `/worldconfig <field> <value>` | **write** — one field + one charset-safe value; mutates the live world, announce before running |
 | `wc-dump [outfile]` | loops `/worldconfig <field>` over every field | live worldconfig → typed JSON + drift table on stderr; used by `snapshot.rb` |
 | `autosavenow` | `/autosavenow` | flush a save |
 | `genbackup [name]` | `/genbackup [name]` | hot backup into `backups/` |
@@ -175,10 +175,10 @@ port `42425` (configurable in `ModConfig/vsrcon.json` — the filename is `vsrco
 
 Run `scripts/rcon.rb --selftest` to exercise the accept/reject + parse logic offline (53 cases, no network).
 
-**`wc-set` is the one write path** and is deliberately the only command `vs-guard.rb` blocks on the
-RCON side. It can express *only* `worldconfig <field> <value>` with a space-free, charset-restricted
-field and value — no other command, no second value, can be smuggled through. Because it mutates the
-live world, the hook stops it as a tool call; surface the exact line for chuck to run with `!`.
+**`wc-set` is the one RCON write path.** It can express *only* `worldconfig <field> <value>` with a
+space-free, charset-restricted field and value — no other command, no second value, can be smuggled
+through. It mutates the live world (no technical block since the 2026-07-05 hook removal) — announce
+the exact command and reasoning before running it.
 
 **Worldconfig changes need a server RESTART to take effect** — verified 2026-06-01: after a `wc-set`,
 the live read (`wc-dump`) still showed the old value; the write lands in the savegame DB but the
@@ -198,7 +198,7 @@ not a `resolve()` path (it's multi-command) — handled as a main-level mode lik
 each field still goes through `resolve(["wc", field])`. Note: top-level serverconfig fields
 (`AllowPvP`, `Password`, `AdvertiseServer`, …) are NOT save-baked and DO load from the file at startup.
 
-**RCON has full console privileges by design** — VintageRCon has no per-command privilege. Two layers stand in for that: (1) `rcon.rb` exposes no raw passthrough, so most destructive commands (`/db prune`, `/wgen regen`, `/ban`, `/kick`, `/role set`, `/op add`) simply can't be expressed — run those from in-game admin chat or the Host Havoc web console; (2) the writes that *are* expressible — `wc-set` (hook-blocked, chuck-only) and `stop` (allowed, since chuck opted into remote restart) — are each a deliberate, reviewed subcommand. To make another command routinely available, add a subcommand to `rcon.rb` — a deliberate, reviewable edit — and decide whether it belongs in the guard's block list; never add a raw client.
+**RCON has full console privileges by design** — VintageRCon has no per-command privilege. `rcon.rb` exposes no raw passthrough, so most destructive commands (`/db prune`, `/wgen regen`, `/ban`, `/kick`, `/role set`, `/op add`) simply can't be expressed — run those from in-game admin chat or the Host Havoc web console. The writes that *are* expressible — `wc-set` and `stop` — are each a deliberate, reviewed subcommand, not a general passthrough. To make another command routinely available, add a subcommand to `rcon.rb` — a deliberate, reviewable edit; never add a raw client.
 
 RCON port 42425 turned out to be reachable on Host Havoc without a panel request (verified live).
 If a future host blocks it, request the port through their panel/support.

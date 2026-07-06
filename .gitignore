@@ -5,4 +5,5 @@ docs/superpowers/
 .env
 **/.env
 vintage-story/snapshots/
+vintage-story/staged-mods/
 vintage-story/configs/vsrcon.json

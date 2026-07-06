@@ -1,18 +1,22 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Safe mod deploy: mirror the LOCAL mods folder up to the live server's Mods/.
-# Local (LOCAL_MODS in .env) is the source of truth. Dry-run by default;
-# pass --apply to actually write.
+# Safe mod deploy: mirror the STAGED mods folder up to the live server's Mods/.
+# STAGED_MODS (in .env) is the source of truth — a snapshot separate from the
+# live game client's own Mods folder (LOCAL_MODS), promoted there deliberately
+# via stage-mods.rb. This keeps client-side troubleshooting (e.g. clearing the
+# client's Mods folder to resolve a version mismatch) from silently changing
+# what deploy.rb thinks should be live. Dry-run by default; pass --apply to
+# actually write.
 #
 # Safety model (this wrapper IS the sanctioned write path; raw sftp.rb writes
 # stay hook-blocked):
 #   - Only manages *.zip mods. Engine assemblies (VS*.dll / VS*.pdb) and any
 #     other non-zip file on the server are never deleted.
 #   - Dry-run prints the exact upload + delete plan; --apply is required to write.
-#   - RECONCILE DRIFT FIRST: anything on the server but not in LOCAL_MODS is
+#   - RECONCILE DRIFT FIRST: anything on the server but not in STAGED_MODS is
 #     treated as stale and DELETED on --apply. If the server has zips you want to
-#     keep, pull them into LOCAL_MODS before deploying (sftp.rb get), or they go.
+#     keep, pull them into STAGED_MODS before deploying (sftp.rb get), or they go.
 #   - Take a backup first: `rcon.rb genbackup before-deploy` (not done here, so
 #     deploy stays SFTP-only and side-effect-free until --apply).
 #
@@ -28,7 +32,7 @@ module Deploy
   module_function
 
   def local_zips
-    Dir.glob(File.join(VS.fetch('LOCAL_MODS'), '*.zip')).to_h { |p| [File.basename(p), p] }
+    Dir.glob(File.join(VS.fetch('STAGED_MODS'), '*.zip')).to_h { |p| [File.basename(p), p] }
   end
 
   def remote_files(sftp)
@@ -50,7 +54,7 @@ module Deploy
 
   def run(apply)
     local = local_zips
-    raise "no local zips in #{VS.fetch('LOCAL_MODS')}" if local.empty?
+    raise "no staged zips in #{VS.fetch('STAGED_MODS')} — run stage-mods.rb first" if local.empty?
 
     VS.sftp do |sftp|
       remote = remote_files(sftp)
@@ -63,7 +67,7 @@ module Deploy
 
   def print_plan(local, remote, uploads, deletes, apply)
     server_zips = remote.count { |name, _| name.end_with?('.zip') }
-    puts "local zips: #{local.size}   server zips: #{server_zips}"
+    puts "staged zips: #{local.size}   server zips: #{server_zips}"
     puts "\nUPLOAD (#{uploads.size}):"
     uploads.each { |n| puts "  + #{n}#{' (changed)' if remote.key?(n)}" }
     puts "\nDELETE from server (#{deletes.size}):"

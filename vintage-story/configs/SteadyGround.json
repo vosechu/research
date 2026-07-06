@@ -1,0 +1,28 @@
+{
+  "SoilGravityEnabled": true,
+  "SoilCanFallSidways": true,
+  "SoilFallSidewaysChance": 0.1,
+  "ForestFloorGravityEnabled": true,
+  "ForestFloorCanFallSideways": false,
+  "ForestFloorFallSidewaysChance": 0.2,
+  "PackedDirtGravityEnabled": false,
+  "PackedDirtCanFallSideways": false,
+  "PackedDirtFallSidewaysChance": 0.2,
+  "GravelGravityEnabled": true,
+  "GravelCanFallSidways": true,
+  "GravelFallSidewaysChance": 0.65,
+  "SandGravityEnabled": true,
+  "SandCanFallSidways": true,
+  "SandFallSidewaysChance": 0.75,
+  "SnowGravityEnabled": true,
+  "SnowCanFallSidways": true,
+  "SnowFallSidewaysChance": 0.35,
+  "PeatGravityEnabled": true,
+  "PeatCanFallSidways": true,
+  "PeatFallSidewaysChance": 0.2,
+  "VegetationBlocksReplaceableOverride": [
+    "flower",
+    "fern",
+    "herb"
+  ]
+}
