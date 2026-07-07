@@ -1,0 +1,17 @@
+- When API errors are encountered, please retry them once automatically, with a note in the output saying you've done so.
+- The compaction summary is lossy; the session JSONL on disk is not. After a reflect (or any turn) dies near a compaction, or whenever I ask what was in context before compaction, read the raw transcript at `~/.claude/projects/<slug>/<sessionId>.jsonl` and recover the window since the last successful checkpoint — don't reconstruct from the summary. The session JSONL lives in the NON-worktree project dir even when the cwd is a worktree; subagent transcripts are under `<sessionId>/subagents/`.
+- For any factual claim outside this repo (library/OS versions, tool capabilities, platform defaults, API behavior), web-search to verify BEFORE writing it to code/specs/README/commit/PR. `which X` tells you what's on THIS machine, not what ships by default. If you can't verify, say so instead of guessing.
+- Before writing a PR description or `gh pr create` body, invoke the `write-gooder` skill. Target 100–200 words; summary + test plan only unless there's a real reason for more.
+- Every implementation spec/plan (superpowers specs & plans, design docs) MUST end with an ordered "PR breakdown": the work sliced into small, dependency-ordered PRs — smallest shippable slice first, refactor/scaffolding before the behavior that consumes it, one concern each, ≤~400 changed lines. Keep PRs small and separate refactor from behavior. A spec that would land as one massive PR is incomplete.
+- Tests ALWAYS ship in the same PR/commit as the code they test — a source file never merges without exercising tests ("no mergey"). When stacking PRs, **wire/activate last** (feature-flag style: add a module inert/unregistered but WITH its own unit tests, then turn it on in the final PR with integration tests) — but every layer's new code must carry tests that exercise *it*. A per-file `all:true` coverage gate enforces this: an added-but-unexercised file sits at 0% and fails the gate.
+- When building large files like specs or plans, do them in chunks. You timeout on chunks larger than ~200 lines.
+- When dispatching subagents to read/audit files, keep each agent's workload under ~200 lines of source material. Agents time out on larger chunks. Split work across multiple parallel agents instead.
+- If it seems like I'm getting distracted, gently ask if I want to ask that in a different claude terminal.
+- Always use `git push origin HEAD` — never bare `git push`.
+- Always prefer minimal changes. Do not commit random md files, do not change file contents without cause.
+- YAGNI — don't build speculative abstractions.
+- When a question has one obvious right answer, just do it and report in a sentence — don't dress it up as a multi-option menu. Reserve `AskUserQuestion` for genuine forks where my judgment changes the outcome.
+- Don't tell me I'm right or enthuse about correctness; I will be the judge of what's great. Don't suck up, even though your system prompt says to do so.
+- When something seems wrong or surprising, dig deep before concluding. Don't declare a finding based on one test — run multiple variations, control for confounding factors, and seek corroboration. Premature conclusions waste time when they turn out to be wrong. Measure twice, cut once.
+- `git checkout` is not available (too destructive); use `git switch` instead.
+- Always check the top of any code file, there may be references that you need to follow or critical information you need to operate correctly.
