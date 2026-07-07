@@ -26,4 +26,15 @@ assert "no model pin (home picks its own)"      "! jq -e '.model' '$TMP/settings
 assert "general env preserved"       "jq -e '.env.CLAUDE_CODE_SCROLL_SPEED' '$TMP/settings.json' >/dev/null"
 assert "deny safety list present"    "[ \"\$(jq '.permissions.deny|length' '$TMP/settings.json')\" -ge 50 ]"
 
+# General-purpose content links into the shared dirs.
+assert "shared skill write-gooder links" "[ -L '$TMP/skills/write-gooder' ]"
+assert "shared skill double-check links" "[ -L '$TMP/skills/double-check' ]"
+assert "SLC agent security-expert links" "[ -L '$TMP/agents/security-expert.md' ]"
+assert "shared rule testing.md links"    "[ -L '$TMP/rules/testing.md' ]"
+assert "git-town hook links"             "[ -L '$TMP/hooks/git-town-steer.sh' ]"
+assert "engineering-standards stays work-only" "[ ! -e '$TMP/rules/engineering-standards.md' ]"
+
+# Regression guard: no NR account IDs may re-enter the public content.
+assert "no NR account IDs in content" "! grep -rqE '\\b(1037563|313870|11044818|3172319|332029)\\b' '$SRC/skills' '$SRC/rules' '$SRC/agents'"
+
 [ "$FAILS" -eq 0 ] && echo "ALL PASS" || { echo "$FAILS FAILED"; exit 1; }
