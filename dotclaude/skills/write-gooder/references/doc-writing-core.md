@@ -45,6 +45,7 @@ Core is almost entirely **[C]** with some **[A]**.
 - **Bullets over prose** for parallel items. Lists are scannable; paragraphs aren't. **[C]**
 - **Tables for parametric data.** Parameter/value, option/default, environment/account. Tables compress; prose expands. **[C]**
 - **Whitespace** between chunks. Density hides the rules that matter. **[C]**
+- **A single newline is not a line break in rendered Markdown.** Consecutive source lines joined by one newline collapse into one paragraph (the break becomes a space), so a stacked label block (`Run by:` / `Target:` / `Pass criterion:`, or `Target:` / `Host:` / `Telemetry:`) renders as a run-on. Put each on its own line with a trailing `<br>`, a blank line between them, or an unordered list. A frequent miss. **[C] [S]**
 
 ### Length
 

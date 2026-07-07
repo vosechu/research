@@ -23,7 +23,8 @@ running test/lint/format gates (use `quality-check`).
 ## The passes
 
 Always run Pass 1 and Pass 2. Run Pass 3 if relevant experts exist. Run Pass 4 only
-when the artifact is a spec or a plan.
+when the artifact is a spec or a plan. Run Pass 5 whenever the artifact reaches a
+conclusion or makes a recommendation the reader will act on.
 
 ### Pass 1 — Accuracy against ground truth
 
@@ -78,6 +79,30 @@ when the artifact is a spec or a plan.
 5. Run the surviving tests past the expert agents too — and Pass 3's verify rule
    still applies to whatever they say back.
 
+### Pass 5 — Adversarial / critical review (only if the artifact reaches a conclusion or recommendation)
+
+Passes 1–3 prove the claims are *true*; this pass asks whether the conclusion is
+*sound*. A document can pass every factual check and still be wrong in its framing,
+scope, or recommendation — verified-but-complacent. Fact-checking cannot catch that;
+only attacking the conclusion can.
+
+1. State the artifact's central claim or recommendation in one sentence.
+2. **Steelman the opposite.** Build the strongest case that the conclusion is wrong,
+   incomplete, or solving the wrong problem. If you cannot argue the opposite, you do
+   not understand your own claim well enough to trust it.
+3. **Attack the framing, not just the content.** Did you answer a narrower question
+   than was asked? Was the method confirmatory — designed to return the answer you
+   got? What did you dismiss by category instead of examining?
+4. **Name the disconfirming evidence.** What fact, if it existed, would flip the
+   conclusion — and did you actually go look for it?
+5. **Rate each critique** load-bearing (changes the conclusion or the action) vs.
+   clever-but-inert (sounds sharp, changes nothing). Discard the inert — manufacturing
+   critiques to look rigorous is the same failure as rubber-stamping, inverted.
+
+Exit criterion: the conclusion either survives a genuine steelman of its opposite, or
+you revise it. Zero load-bearing critiques on a non-trivial recommendation is a
+rubber-stamp signal — re-attack the framing and the search design, not just the claims.
+
 ## Boundaries
 
 | Always | Ask first | Never |
@@ -85,6 +110,7 @@ when the artifact is a spec or a plan.
 | Open the real source for every claim (Pass 1) | Whether to run Pass 4 if the artifact's spec/plan status is ambiguous | Mark a claim verified from memory |
 | Run the write-gooder pass (Pass 2) | Whether to dispatch experts if the topic is borderline | Apply an expert's claim without checking it |
 | Report what you could NOT verify | — | Feed the clean-room subagent the spec's proposed implementation or stated answer values |
+| Steelman the opposite of any conclusion (Pass 5) | — | Manufacture critiques to perform rigor |
 
 ## Rationalizations — stop if you think these
 
@@ -97,6 +123,7 @@ when the artifact is a spec or a plan.
 | "The clean-room tests look thorough." | Thorough ≠ correct. A test for an unobservable thing is noise. Sanity-check each. |
 | "It's only a README, skip the tests." | Correct — Pass 4 is specs/plans only. Still run Passes 1 and 2. |
 | "My double-check found nothing to change." | A zero-change pass across multiple artifacts is a rubber-stamp signal, not a clean bill — it usually means you verified from memory, not source. Re-open each cited source and hunt specifically for over-claims and stale line/number references; a real pass on a non-trivial artifact almost always finds something. |
+| "It passed accuracy and the experts, so it's sound." | Verified-true ≠ sound. A conclusion can be factually airtight and still complacent, narrowly framed, or answering the wrong question. Steelman its opposite before trusting it (Pass 5). |
 
 ## Report format
 
@@ -108,3 +135,5 @@ Lead with a one-line verdict: **send** or **don't send**. Then:
 - **Pass 3 (experts):** findings you verified and kept, plus any you rejected and why.
 - **Pass 4 (clean-room, specs/plans):** the surviving tests; note any you discarded
   and the reason.
+- **Pass 5 (adversarial):** the strongest counter-case to the conclusion, and whether
+  it survived intact or was revised.
