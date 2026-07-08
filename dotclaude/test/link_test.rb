@@ -35,7 +35,9 @@ class SharedLinkTest < Minitest::Test
       assert File.exist?(File.join(home, 'settings.json'))
       assert File.symlink?(File.join(home, 'skills', 'write-gooder'))
       assert File.symlink?(File.join(home, 'skills', 'double-check'))
+      assert File.symlink?(File.join(home, 'skills', 'vintagestory-modding'))
       assert File.symlink?(File.join(home, 'agents', 'security-expert.md'))
+      assert File.symlink?(File.join(home, 'agents', 'game-programmer.md'))
       assert File.symlink?(File.join(home, 'rules', 'testing.md'))
       assert File.symlink?(File.join(home, 'hooks', 'git-town-steer.sh'))
     end
