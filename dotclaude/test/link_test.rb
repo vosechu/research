@@ -33,7 +33,6 @@ class SharedLinkTest < Minitest::Test
   def test_singletons_and_content_link
     with_home do |home|
       assert File.exist?(File.join(home, 'settings.json'))
-      assert File.exist?(File.join(home, 'CLAUDE.md'))
       assert File.symlink?(File.join(home, 'skills', 'write-gooder'))
       assert File.symlink?(File.join(home, 'skills', 'double-check'))
       assert File.symlink?(File.join(home, 'agents', 'security-expert.md'))
@@ -55,6 +54,12 @@ class SharedLinkTest < Minitest::Test
   def test_engineering_standards_stays_work_only
     with_home do |home|
       refute File.exist?(File.join(home, 'rules', 'engineering-standards.md'))
+    end
+  end
+
+  def test_claude_md_is_not_linked
+    with_home do |home|
+      refute File.exist?(File.join(home, 'CLAUDE.md')), 'CLAUDE.md is merged by hand, not linked'
     end
   end
 
