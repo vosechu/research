@@ -86,8 +86,10 @@ end
 # Items whose CHILDREN are linked individually (parent dir made real), so the
 # work layer can add its own children into the same ~/.claude dirs.
 DIR_ITEMS  = %w[agents skills rules hooks].freeze
-# Single-file items linked as-is.
-FILE_ITEMS = %w[settings.json CLAUDE.md].freeze
+# Single-file items linked as-is. CLAUDE.md is deliberately NOT here: it's
+# merged by hand into ~/.claude/CLAUDE.md instead of symlinked, since that
+# file is personal/live and this repo is public.
+FILE_ITEMS = %w[settings.json].freeze
 
 if __FILE__ == $PROGRAM_NAME
   src  = __dir__
