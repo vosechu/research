@@ -165,6 +165,14 @@ decompile and confirm `TickEntities` is still a serial `foreach`.
 - **Item** (`class` in itemtype JSON → `RegisterItemClass`): item behavior.
 - **BlockBehavior / CollectibleBehavior / EntityBehavior**: composable behaviors attached in
   JSON, registered via the matching `Register*BehaviorClass`.
+- **⚠ Chunks are 32×32×32 cubes, not full-height columns.** `GetChunkAtBlockPos(pos)` returns the
+  single 32³ chunk containing `pos`, and `IWorldChunk.BlockEntities` holds only that cube's entities.
+  To scan a *volume* for block entities you must iterate the chunk index on **all three axes**
+  (`cx`, `cy`, `cz`) over `floor((min..max)/32)` — iterating only `cx`/`cz` at one Y silently misses
+  everything outside a single 32-tall band (a basement, an upper floor, a sloped build), with no
+  compiler error and no exception. `WalkBlocks(min, max, …)` handles Y for you; hand-rolled chunk
+  enumeration does not. (This bit a real container-index scan: it found only chests near
+  village-center height until the `cy` loop was added.)
 
 ## Assets & JSON patching
 

@@ -37,7 +37,7 @@ The trap: making it compile with *a* value instead of the *correct* value.
 - [ ] Check for an existing issue/PR before writing one (`gh search issues/prs --repo <owner/repo>`).
   Don't duplicate.
 
-## Tier 4 — Runtime / in-game (manual — cannot be automated)
+## Tier 4 — Runtime / in-game (mostly manual; partially automatable headless)
 
 VS has no integration-test harness. Build → load in-game → read the logs is the only way to
 verify behavior.
@@ -77,6 +77,68 @@ JSON never runs at all (it can still break the *build*). If the entity just stan
 it's actually wired before assuming a bug.
 
 **Watch the log** (macOS): `~/Library/Application Support/VintagestoryData/Logs/{client,server}-main.log`.
+
+**Headless partial-automation (dedicated server).** Tier 4 is not *entirely* a human's job. The
+dedicated server (`VintagestoryServer`) is a console app that boots with no display, so an agent can
+run it and read its log. It won't render, but it ticks the world and entities. Recipe:
+
+1. Isolate a data dir: `--dataPath /tmp/vstest`. First boot writes `serverconfig.json` there and
+   generates a fresh world.
+2. To load a *specific* existing world instead, copy the `.vcdbs` save into `/tmp/vstest/Saves/foo.vcdbs`
+   (drop spaces from the name) and set `serverconfig.json`'s `WorldConfig.SaveFileLocation` to that
+   path — a client singleplayer save loads fine on the dedicated server (same DB format).
+3. Launch (background it), wait for `Dedicated Server now running on Port`, then read
+   `/tmp/vstest/Logs/server-main.log`:
+   ```
+   VINTAGE_STORY="<game>" "<game>/VintagestoryServer" --dataPath /tmp/vstest \
+     --addModPath <dev>/Mods --addOrigin <dev>/assets --tracelog
+   ```
+4. Drive it via stdin (the console reads chat/console commands) or a temporary debug command the mod
+   registers. Stop with `pkill -f VintagestoryServer` (or `/stop`).
+
+Free win: confirms the mod loads and every ModSystem initializes with **no exceptions in a live
+runtime** — the build cannot prove that. Still needs a set-up scenario: with no player connected only
+spawn chunks stay loaded, so **construct the scenario deterministically** (spawn + place in code)
+rather than hoping the save already has it near spawn.
+
+**Full behavioral automation IS possible — entity AI runs headless with `AlwaysActive`.** The common
+belief that "AI needs a player" is only half true. The server parks entities as `State=Inactive` when
+no player is within `SimulationRange` (`Entity.DoInitialActiveCheck`; the per-tick re-eval in
+`VintagestoryLib` skips only `entity.AlwaysActive` entities), and the AI behaviour only ticks its task
+manager when `State==Active` (`EntityBehaviorTaskAI.OnGameTick` gates on `entity.State`). So with zero
+players **everything is Inactive and no AI runs** — which is why a raw spawn "just stands there." The
+lever: set **`entity.AlwaysActive = true` BEFORE `SpawnEntity`** (Initialize reads it, and the sim's
+re-eval leaves AlwaysActive entities alone). The entity then ticks its full decision→path→act loop
+headless. This turns Tier 4 from "load and eyeball" into a real behavioral test: spawn AlwaysActive
+entities, wire their state in code, let the world tick, assert on live game state, read the log.
+Gotchas for a deterministic scenario: build a **flat loaded floor** (random terrain puts targets at
+different heights / underwater → unpathable) and **assert over a settle window** (overlapping tasks
+make momentary state oscillate), not an end snapshot.
+
+**`--addModPath` is a sequence option** — pass ONE flag with space-separated paths
+(`--addModPath a b`), never the flag twice. Repeating it makes the CommandLine parser return null and
+the server dies with an NRE in `ServerProgram..ctor()` before the world loads. (`--addOrigin` is the
+same.) A totally fresh empty `--dataPath` boots fine and generates a world on its own — if it crashes
+at startup, suspect the arg syntax, not the data dir.
+
+**Watch a headless scenario render live in the client.** The singleplayer client runs an integrated
+server, so the *same* server-side harness (`ShouldLoad(Server)` ModSystem + its chat commands) loads and
+runs under it. Drop straight into a throwaway creative world — no menu — with the client's own launch
+options (decompiled from `ClientProgramArgs`): `-o/--openWorld <name>` opens-or-creates a world,
+`-p/--playStyle creativebuilding` (the default) makes it creative so you hold the `gamemode` privilege
+the harness command needs, and an isolated `--dataPath` loads **only** your `--addModPath` mods (no
+installed release/addons ⇒ no mod-version race) and shields your real saves from a scenario's
+destructive terrain edits (`-c/--connect <addr>` instead joins a server):
+```
+VSVILLAGE_GOLDEN_ALLOW=1 "<game>/Vintagestory" --dataPath /tmp/watch -o scene -p creativebuilding \
+  --addModPath <dev>/Mods <harness>/Mods --tracelog
+```
+Then in-game press `T` and run the harness command. (If the harness gates destructive runs behind
+an env opt-in — a good pattern, since the scenario permanently flattens terrain — set that var on
+the launch, as above; without it the run command should refuse rather than carve up a real save.) To make the scenario *self-narrate* what each moment
+proves, broadcast beats to players — `sapi.BroadcastMessageToAllGroups(msg, EnumChatType.Notification)` —
+gated on `api.World.AllOnlinePlayers.Length > 0`, so it's a silent no-op headless and never perturbs the
+CI gate.
 
 - [ ] The changed feature exercises its code path without exceptions.
 - [ ] `server-main.log` / `client-main.log` show no new `[Error]`, `Exception`,
