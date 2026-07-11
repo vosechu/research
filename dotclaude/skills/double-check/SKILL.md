@@ -62,22 +62,15 @@ conclusion or makes a recommendation the reader will act on.
 
 ### Pass 4 — Clean-room test suite (specs and plans only)
 
-1. Dispatch a **fresh subagent** (no shared context) to write a prose test suite:
-   the observable outputs and invariants a correct implementation or document would
-   exhibit.
-2. Give it the **goal, behavior, and acceptance criteria** — but **strip or clearly
-   mark any proposed implementation** the spec carries (queries, function signatures,
-   example tests, stated expected values) so the subagent cannot anchor on it. Add no
-   design hints of your own either (files, functions, your expected approach).
-3. Instruct it to **compute every expected value itself from the inputs, never
-   trusting a number written in the spec**. Anchoring on the spec's own proposed
-   implementation or stated numbers is exactly the poisoning this pass exists to
-   avoid — a clean-room agent handed a wrong "expected" value will faithfully encode
-   the bug into its tests.
-4. **Sanity-check each returned test yourself**: is it actually observable? does it
-   follow from the goal? Discard nonsense and unobservable assertions.
-5. Run the surviving tests past the expert agents too — and Pass 3's verify rule
-   still applies to whatever they say back.
+Invoke the **`red-team-testing`** skill and follow it. It strips the spec's proposed
+implementation and stated values, dispatches a fresh subagent to derive the correct
+behavior and expected values independently (so a wrong "expected" number can't be
+encoded into the tests), points the red-team lens at
+boundaries/degenerate/concurrency/time/invariants, and reconciles what it finds against
+what the spec claims.
+
+Then, before trusting the result: run the surviving clean-room tests past the Pass 3
+expert agents too — and Pass 3's verify rule still applies to whatever they say back.
 
 ### Pass 5 — Adversarial / critical review (only if the artifact reaches a conclusion or recommendation)
 
@@ -86,22 +79,12 @@ Passes 1–3 prove the claims are *true*; this pass asks whether the conclusion 
 scope, or recommendation — verified-but-complacent. Fact-checking cannot catch that;
 only attacking the conclusion can.
 
-1. State the artifact's central claim or recommendation in one sentence.
-2. **Steelman the opposite.** Build the strongest case that the conclusion is wrong,
-   incomplete, or solving the wrong problem. If you cannot argue the opposite, you do
-   not understand your own claim well enough to trust it.
-3. **Attack the framing, not just the content.** Did you answer a narrower question
-   than was asked? Was the method confirmatory — designed to return the answer you
-   got? What did you dismiss by category instead of examining?
-4. **Name the disconfirming evidence.** What fact, if it existed, would flip the
-   conclusion — and did you actually go look for it?
-5. **Rate each critique** load-bearing (changes the conclusion or the action) vs.
-   clever-but-inert (sounds sharp, changes nothing). Discard the inert — manufacturing
-   critiques to look rigorous is the same failure as rubber-stamping, inverted.
-
-Exit criterion: the conclusion either survives a genuine steelman of its opposite, or
-you revise it. Zero load-bearing critiques on a non-trivial recommendation is a
-rubber-stamp signal — re-attack the framing and the search design, not just the claims.
+Invoke the **`red-team-testing`** skill and run its adversarial steelman on the
+conclusion (state the claim in one sentence, steelman its opposite, attack the framing,
+name the disconfirming evidence, rate each critique load-bearing vs. inert). Exit
+criterion: the conclusion survives a genuine steelman of its opposite, or you revise
+it. Zero load-bearing critiques on a non-trivial recommendation is a rubber-stamp
+signal.
 
 ## Boundaries
 
