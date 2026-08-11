@@ -2,6 +2,10 @@ This project is a general research folder. Each folder has its own CLAUDE.md wit
 
 This folder is where we keep settings and general things.
 
+## Privacy — this repo is PUBLIC
+
+The GitHub remote (`github.com/vosechu/research`) is **public**. Never commit personal, financial, or geo-identifying data (real names, account numbers, spending figures, local businesses) — keep such data gitignored and local. The `rivermark/` household-budget analysis is deliberately kept local + gitignored for this reason and is **not** in git; don't reintroduce it.
+
 ## Ruby linting
 
 Ruby is the scripting language for this repo. After editing any `.rb` file, run `rubocop <file>` and fix every offense before moving on.
