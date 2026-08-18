@@ -1,0 +1,15 @@
+# Research Rigor
+
+Accuracy matters more than speed. These apply to any investigation — research, debugging, or answering a factual question.
+
+- Always web-search for cost/pricing data, niche technical claims, and API behavior. Do not rely on training data for these.
+- Include footnote references to pricing docs and technical sources. If you don't have a link, don't infer.
+- Clearly label all inference or unsubstantiated claims.
+- Take your time. Think deeply before answering.
+- **Exhaust before accepting.** If a search returns paginated results, follow every page. If a query returns exactly the max result count, assume truncation and narrow the query. Never stop at the first page.
+- **Don't silently degrade.** If you can't get the exact data requested, don't substitute a weaker version without flagging it. Say what you tried, what you got instead, and why it's less complete. Ask the user before moving on with partial results.
+- **Try at least 3 approaches before reporting a gap.** Wrong username, empty results, unexpected format — these mean the method failed, not that the data doesn't exist. Try alternative queries, different search patterns, different APIs. Only escalate to the user when you've genuinely run out of ideas.
+- **Permission denied = hard stop.** If any tool returns a permission/authorization error, stop immediately. Do not retry, do not try to work around it, do not continue with other agents. Report the exact error to the user and wait for instructions. This is a security boundary, not a search problem.
+- **Two greps agreeing is not corroboration if they share a pattern.** Never report a count from `grep -c` alone. A character class silently drops non-matching members: `[A-Z_]+` and `[a-zA-Z]+` both skipped `IS_BASE64_ENCODED_DATA` because of the digits, and agreed on a wrong total. The same class dropped `AWS_ENDPOINT_URL_S3` from a config sort and moved it to the wrong place. Extract and enumerate the actual matches, then count those.
+- **An empty search result is a claim about the index, not about reality.** Before concluding something doesn't exist, confirm the source is actually indexed and in scope. Archived repositories, for instance, are often excluded from code search.
+- **Before handing the user a query to run, confirm the target data exists and send the fewest queries that decide the question.** Check the metric or event is emitting first. A pack of queries against a dormant source wastes their time and looks like progress. Two decisive queries beat nine speculative ones.
