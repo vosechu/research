@@ -140,7 +140,26 @@ Write each item as a **specific fact a reviewer can check against the diff**, no
 
 ## Length
 
-Be as short as gets the elements across. A one-file config change fits in 40 words total:
+**Budget: 40 prose words per file touched, floor 60, cap 200.** Count files with `gh pr diff <N> --name-only`; measure with `wc -w`. Over budget is a failure, and the only fix is deletion. Restructuring to fit is cheating.
+
+Files touched, not lines changed, because that's what drives how much explaining a PR needs. A 500-line rewrite of one file takes one bullet; a 137-line change across four files takes four, plus pointers into each. So: a one-file config change gets 60 words, a four-file change gets 160, a twelve-file refactor gets 200 and not a word more.
+
+**Prose** means the description, the notes on pointers, and the concerns. The human-review checkbox (fixed boilerplate) and the test-plan checklist (evidence) are exempt: padding doesn't hide in a tick list, and cutting evidence to hit a word count is the wrong trade. When the body is over budget, the excess is in the prose. Every time.
+
+Per-element caps, so the budget doesn't get spent in one place:
+
+- Description: 3 sentences.
+- Pointers: 3, and usually 2.
+- Concerns: one line each. At most one item gets the long-form "thing / why / what I did" treatment.
+- Test plan: 5 items.
+
+**When the budget forces a cut, spend words in this order:** description, the single most important pointer, the riskiest concern, evidence. Cut from the bottom. Three pointers and four concerns do not fit in 200 words alongside a description, so choose.
+
+Do not negotiate with the budget. "This PR is unusually complex" is what every author believes. If 200 words genuinely can't carry the review, the PR is too big; split it.
+
+**Cut items, not syllables.** Once you're within ~10 words, shaving adjectives and swapping "whichever lands second" for "second to land" buys nothing and costs real time. Delete the weakest bullet instead. If deleting one drops you well under, good: under budget is never a failure.
+
+A one-file config change fits in 40 words total:
 
 ```markdown
 - [ ] I have fully read and comprehended this code.
@@ -153,20 +172,15 @@ Adds `nr-db` to CODEOWNERS so database-owning team gets review requests on nr-db
 - [ ] CODEOWNERS entry validates (GitHub lint runs automatically)
 ```
 
-A complex refactor might need 250-400 words to lay out enough pointers and concerns. **Length is not the metric — clarity is.** If you can cut a sentence without losing a reviewer-useful fact, cut it. If a long PR needs more pointers, write more pointers.
-
 Things that almost always ARE padding:
 
 - Research recaps that duplicate a linked TODO or spec
 - Prose narratives of verification steps (use the test-plan checklist instead)
 - Self-assessment ("this feels clean", "I'm excited about")
 - Restating the commit messages
-
-Things that are NOT padding even when they make the PR long:
-
-- More pointers, if the PR touches more parts of the codebase
-- More concerns, if the PR is riskier
-- More test items, if there's more to check
+- A paragraph explaining a bullet that already said it
+- Sections that hedge what the evidence proves ("what this does and does not prove"). Fold the caveat into the concern it belongs to.
+- Repeating the "why" in both the description and the test plan
 
 ## Formatting conventions
 
@@ -178,8 +192,10 @@ Things that are NOT padding even when they make the PR long:
 
 ## Process
 
-1. **Add each element to your task list.** Use TaskCreate with one task per element: description, checkbox, starting points, concerns / open questions, test plan. Drafting in order prevents you from skipping ahead to what's easy (usually test plan) and starving what's hard (usually description + concerns).
-2. **Draft each element in order.** Mark the task in_progress while you write it, completed when you move on.
-3. **For each sentence, ask: "does a reviewer need this to review well, or am I narrating?"** Narration is the most common form of padding — self-congratulation, history of abandoned approaches, restating commit messages. Cut it.
-4. **Read it as a reviewer who hasn't seen the code.** This is the test that matters most. After 20 seconds, can they (a) say what the PR does, (b) point to the most important file, (c) name something to watch for? If any of the three fails, the body is broken — usually because the description hides the point or the starting-points list is missing the load-bearing pointer. Fix that, not prose.
-5. **Leave the human-review checkbox unticked.**
+1. **Compute the budget first.** `gh pr diff <N> --name-only | wc -l`, times 40, clamped to 60–200. Write the number down before drafting. A budget picked after the draft is the draft's length.
+2. **Add each element to your task list.** Use TaskCreate with one task per element: description, checkbox, starting points, concerns / open questions, test plan. Drafting in order prevents you from skipping ahead to what's easy (usually test plan) and starving what's hard (usually description + concerns). An element you deliberately leave empty is a completed task, not a gap to fill.
+3. **Draft each element in order.** Mark the task in_progress while you write it, completed when you move on.
+4. **For each sentence, ask: "does a reviewer need this to review well, or am I narrating?"** Narration is the most common form of padding: self-congratulation, history of abandoned approaches, restating commit messages. Cut it.
+5. **Delete 25%.** Run `wc -w`. Then cut a quarter of the words without adding one or moving a section. This is a quota, not a question, because "what can I cut?" reliably answers "nothing." If you can't find 25%, you're reading as the author rather than the reviewer. Re-measure against the budget.
+6. **Read it as a reviewer who hasn't seen the code.** This is the test that matters most. After 20 seconds, can they (a) say what the PR does, (b) point to the most important file, (c) name something to watch for? If any of the three fails, the body is broken, usually because the description hides the point or the starting-points list is missing the load-bearing pointer. Fix that, not prose.
+7. **Leave the human-review checkbox unticked.**

@@ -49,7 +49,10 @@ Core is almost entirely **[C]** with some **[A]**.
 
 ### Length
 
+- **Set a word budget before drafting, and treat it as a gate.** Derive it from what drives the reader's need to be told, not from the size of the thing described (a PR: 40 words per file touched, clamped 60–200, since files predict how many separate explanations are owed; a rule file: shorter than the code it gates). Exempt fixed boilerplate and evidence checklists; budget the prose, where padding actually lives. Measure with `wc -w`. Over budget is a failure whose only fix is deletion. Without a number, "as short as it needs to be" resolves to whatever length you drafted, every time. **[A]**
 - **Cut by half** (Nielsen). Then read it cold and cut again where you find slack. **[A]**
+- **Delete 25% after drafting, adding nothing and moving nothing.** A quota, not a question: "what can I cut?" reliably answers "nothing, it's all useful," because the author is grading their own draft. If you can't find a quarter, you're reading as the author rather than the reader. **[A]**
+- **Beware the clarity escape hatch.** "Length isn't the metric, clarity is" reads as wisdom and functions as permission, since the writer is the one judging clarity. Any draft passes it. Budget and quota bind; appeals to clarity don't. **[A]**
 - **Zero-shot first; add examples only if the reader fails without them.** Docs bloat fast when examples get added preemptively. **[A]**
 - **One real example beats a descriptive paragraph** when you do include one (Osmani). **[C]**
 
@@ -106,6 +109,7 @@ Core is almost entirely **[C]** with some **[A]**.
 - **Write five specifics before synthesizing.** Generalities create the illusion of alignment; specifics create alignment. Draft five concrete examples, then write the abstract rule (Larson). **[A]**
 - **Write the specifics and stop before generalizing.** The rule after the examples is often the examples themselves. **[A]**
 - **Let facts speak.** Editorializing their importance is how AI prose and PR marketing both fail. **[C]**
+- **A code comment states the constraint a future edit could violate, not the history of how you found it.** The reader needs the rule and the reason it exists; they were not in the room. Cut in-process notes — "a `package.json` trigger would have missed #34 and #36", "this used to be X before we hit Y", "as discussed". A bare PR or ticket number is not a reason: it makes the reader open two closed tabs to decode a rule that should stand alone. Name the mechanism instead ("a condition on `package.json` misses lockfile-only changes"). The test: would this comment still teach someone six months from now, with no access to the discussion that produced it? **[C] [A]**
 - **An explicit unknown beats vague filler.** Write `???`, "not captured," or "couldn't confirm" where you don't know — not "varies," "TBD-ish," or "depends." A marked gap is honest and actionable; vague filler reads as an answer when it isn't, and the reader trusts it. Derive the real number first; only fall back to a marked gap. **[C] [A]**
 
 ---
@@ -115,7 +119,7 @@ Core is almost entirely **[C]** with some **[A]**.
 Before you ship, read it cold. Four questions:
 
 1. **Does the first paragraph carry the answer?** If the reader stopped there, would they have it? **[A]**
-2. **What can I delete without loss?** Half of what's left, if Nielsen is right. **[A]**
+2. **Delete 25% now.** Not "what could I delete" (that answers itself as "nothing") but the cut itself, adding nothing back. Then check `wc -w` against the budget. **[A]**
 3. **Would removing this line cause a mistake?** If no, cut it (Anthropic). **[A]**
 4. **Read it aloud, or hand it to an uninvolved reader.** Read-aloud catches stilted prose; fresh eyes catch inscrutability the author glosses over (Larson). An LLM can first-pass prose mechanics; a human catches domain inscrutability. Use both. **[A]**
 
