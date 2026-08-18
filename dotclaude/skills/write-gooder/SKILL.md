@@ -1,13 +1,13 @@
 ---
 name: write-gooder
-description: Use when drafting a PR description (or `gh pr create` body), a Change Design Document / CDD / design doc, an Initiative Design Doc / IDD, a repo README, a runbook, an engineering standard, a CLAUDE.md file, or a SKILL.md — structured artifacts a reader (human or model) has to scan, trust, and act on. Routes to the right template and loads the relevant style references on demand.
+description: Use when drafting a PR description (or `gh pr create` body), a Change Design Document / CDD / design doc, an Initiative Design Doc / IDD, a repo README, a runbook, an engineering standard, a CLAUDE.md file, or a SKILL.md, and when writing, reviewing, or pruning code comments in any language, including deciding whether a comment should exist at all.
 ---
 
 # Write Gooder
 
 ## What this skill does
 
-Routes you to one of eight templates based on what you're writing, then loads the style references that template depends on. Every template is short; the reference files behind them are the accumulated rules from a 29-source extraction on writing-for-scan (human and LLM readers).
+Routes you to one of nine templates based on what you're writing, then loads the style references that template depends on. Every template is short; the reference files behind them are the accumulated rules from a 29-source extraction on writing-for-scan (human and LLM readers).
 
 Several templates sit **on top of existing NR canonical templates** (CDD, IDD, README, Runbook, Engineering Standard) rather than replacing them. Each of those templates opens with a "Relationship to the NR canonical template" section pointing you at the STAN-space source of truth; this skill's job is to add content discipline (reviewer-actionable framing, honest checkboxes, rule + rationale rhythm) on top.
 
@@ -25,6 +25,7 @@ Do not try to hold all three reference files in context at once. Load only what 
 | An engineering standard (for STAN space: Quality, Engineering, or Security) | `templates/standard.md` | `references/doc-writing-core.md`, `references/appendix-human.md` |
 | A CLAUDE.md (project-memory file) | `templates/claude-md.md` | `references/doc-writing-core.md`, `references/appendix-llm.md` |
 | A SKILL.md (body of a Claude Code skill) | `templates/skill-md.md` | `references/doc-writing-core.md`, `references/appendix-llm.md` |
+| Code comments (writing, reviewing, or pruning them) | `templates/code-comments.md` | `references/doc-writing-core.md` only |
 
 If the user's request doesn't match one of these, fall back to `references/doc-writing-core.md` alone — it covers the generic prose craft and comprehension rules that apply to any reader.
 
