@@ -39,6 +39,17 @@ git config git-town.github-connector gh   # use the gh CLI; needs: GH_HOST=sourc
 
 Crib from a repo that already works: `git -C ../nr-query-bridge config --get-regexp '^git-town\.'`.
 
+## Shipping without a PR
+
+Default `ship-strategy` is `api` — it presses the merge button via the forge API and needs a
+remote branch/PR, else **"cannot ship branch ... via API because it has no remote branch."**
+For a pure local merge, no PR needed: `git town ship -s squash-merge`. It does **not** push
+afterward — `git push origin main` yourself. It still prompts to confirm the squash commit's
+author even for one commit; run it in a real terminal, not a piped/non-TTY shell, or it fails
+**"no interactive terminal available."** If `git town status` still shows an *older* command as
+the last one (e.g. `hack`, not `ship`), your `ship` never actually ran — don't assume success
+just because nothing errored.
+
 ## When something goes wrong: undo, don't skip
 
 - **Back out a failed/unwanted command → `git town undo`** — reverts to the exact pre-command
@@ -66,6 +77,9 @@ moved or a remote was deleted.
   and surface it** — do NOT fall back to raw `git push`/`gh` to force it. The git-town failure
   is the bug to report, not route around.
 - Read-only `gh` (`pr view/list/checks`, `api`), `git switch`, and `git merge-base` are fine.
+- A manual `git stash push -- <pathspec>` (to isolate unrelated WIP before branching) can get
+  denied by the auto-mode classifier. Don't fight it — let `git town hack`/`sync`'s own
+  stash-and-restore carry the unrelated WIP onto the new branch; it gets restored automatically.
 
 ## Reference
 

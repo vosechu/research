@@ -1,7 +1,8 @@
 # git-town reference
 
 Verified against the official git-town **22.7** docs (`git-town.com/commands/*`), 2026-07-01,
-plus two incidents in this repo.
+plus two incidents in this repo. `ship`/`ship-strategy` re-verified against **24.0** docs,
+2026-08-03.
 
 ## Commands — what each actually does
 
@@ -10,7 +11,7 @@ plus two incidents in this repo.
 | `git town hack <name>` / `append <name>` | new feature branch — `hack` off main, `append` as a child of the current branch | — |
 | `git town sync [--all] [--stack]` | integrate: pull/push parent + tracking branch, rebase, **stash uncommitted changes (incl. untracked) as "Git Town WIP" and restore when done**, and prune branches whose remote was deleted *if they have no unshipped commits* | if interrupted, the WIP stash is left unpopped → files "vanish" (recover with `git stash apply`) |
 | `git town propose [-t <title>] [-f <body-file>]` | **syncs first** (detached), then opens a PR on the forge (browser, or the configured connector e.g. `gh`) | needs forge config on GHE (else "unsupported forge type"); inherits sync's stash behavior; needs a known parent (`set-parent`) |
-| `git town ship [-m <msg>]` | **squash-merges** the branch into main, closes the PR, deletes the branch | the merge — **gated to the human** here; the squash commit **needs `-m` / `--message-file` non-interactively** or it aborts on the empty commit message (then auto-undoes cleanly). For a single non-stacked PR the GHE **UI merge** is simpler — git-town's own docs recommend the UI/merge-queue and call `ship` an edge-case (offline / stacked) tool |
+| `git town ship [-m <msg>] [-s <strategy>]` | merges the branch into main per `ship-strategy` (default `api`: presses the forge's merge button, needs a remote branch/PR), closes the PR, deletes the branch | the merge — **gated to the human** here. Default `api` strategy fails **"cannot ship ... via API because it has no remote branch"** if you never pushed/proposed. No PR needed → `-s squash-merge` (pure local merge; does **not** push main afterward — `git push origin main` yourself). Squash-merge still prompts to confirm the squash commit's author even for one commit — fails **"no interactive terminal available"** outside a real TTY. For a single non-stacked PR the GHE **UI merge** is simpler — git-town's own docs recommend the UI/merge-queue and call `ship` an edge-case (offline / stacked) tool |
 | `git town undo` | reverts the *last fully-executed* git-town command to the exact prior state | the safe back-out for a bad/failed command |
 | `git town continue` | resume the paused command after you fix what blocked it | use after fixing the cause (forge config, a conflict) |
 | `git town skip [--park]` | **skip a branch that has merge conflicts while syncing all branches** — NOT a generic "clear paused state" | misused on a failed `propose` it **deleted our remote branch**; prefer `undo`/`continue` |
