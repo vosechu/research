@@ -7,11 +7,11 @@ description: Use when drafting a PR description (or `gh pr create` body), a Chan
 
 ## What this skill does
 
-Routes you to one of nine templates based on what you're writing, then loads the style references that template depends on. Every template is short; the reference files behind them are the accumulated rules from a 29-source extraction on writing-for-scan (human and LLM readers).
+Routes you to a template based on what you're writing, then loads the style references that template depends on. Every template is short; the reference files behind them are the accumulated rules from a multi-source extraction on writing-for-scan (human and LLM readers), listed in `references/sources.md`.
 
 Several templates sit **on top of existing NR canonical templates** (CDD, IDD, README, Runbook, Engineering Standard) rather than replacing them. Each of those templates opens with a "Relationship to the NR canonical template" section pointing you at the STAN-space source of truth; this skill's job is to add content discipline (reviewer-actionable framing, honest checkboxes, rule + rationale rhythm) on top.
 
-Do not try to hold all three reference files in context at once. Load only what the picked template needs.
+Do not try to hold every reference file in context at once. Load only what the picked template needs, plus `references/global-audience.md` when it applies (see below).
 
 ## Routing
 
@@ -29,6 +29,8 @@ Do not try to hold all three reference files in context at once. Load only what 
 
 If the user's request doesn't match one of these, fall back to `references/doc-writing-core.md` alone — it covers the generic prose craft and comprehension rules that apply to any reader.
 
+**Also read `references/global-audience.md` for any human-read artifact whose readers include non-native English speakers.** At a company with engineers on several continents that is the common case, not the exception, so default to reading it and skip it only when you know the audience is narrow (a note to one person, a doc for one colocated team). It's a third axis rather than a fourth audience: it stacks on top of whichever appendix the template picked. Skip it for `code-comments.md` and for the two LLM-audience templates unless a human reads the artifact too, which for a CLAUDE.md usually means yes.
+
 **Out of scope — defer to another skill or handle ad-hoc:**
 - **DACI documents.** Use `nr:daci-knowledge-skill` for NR's DACI framework guidance. The canonical DACI template is tight already; a write-gooder override adds little.
 - **Slack messages.** Register varies too much; use `slack:slack-messaging` for Slack-specific composition guidance.
@@ -36,10 +38,11 @@ If the user's request doesn't match one of these, fall back to `references/doc-w
 
 ## What's in each reference
 
-- **`references/doc-writing-core.md`** (104 lines) — Prose craft and comprehension rules that apply to any reader: front-load the point, cut by half, active voice, short sentences, no hedging/puff/filler, specificity over abstraction.
-- **`references/appendix-llm.md`** (209 lines) — LLM-only mechanics: CLAUDE.md discovery, path-gated rules, the description-as-trigger for skills, three-level progressive disclosure, hooks, memory. Read this when the reader is a model.
-- **`references/appendix-human.md`** (103 lines) — Human-only mechanics: F-pattern scanning, 9-year-old reading age, "must" vs "need to," accountability (human-grammatical-subject rule, AI-attribution policy, read-through checkbox). Read this when the reader is a human.
-- **`references/sources.md`** — Annotated 29-source bibliography behind the rules. Load this **only when revising the skill**, not when authoring a document.
+- **`references/doc-writing-core.md`** — Prose craft and comprehension rules that apply to any reader: front-load the point, cut by half, active voice, short sentences, no hedging/puff/filler, specificity over abstraction.
+- **`references/appendix-llm.md`** — LLM-only mechanics: CLAUDE.md discovery, path-gated rules, the description-as-trigger for skills, three-level progressive disclosure, hooks, memory. Read this when the reader is a model.
+- **`references/global-audience.md`** — Writing for readers whose first language isn't English: put helper words and relative pronouns back, one term per concept, no idiom or culture-specific reference, conditional clause first. Read it alongside an appendix, not instead of one. It's the one file that tells you to add words rather than cut them, and it explains where that stops.
+- **`references/appendix-human.md`** — Human-only mechanics: F-pattern scanning, 9-year-old reading age, "must" vs "need to," accountability (human-grammatical-subject rule, AI-attribution policy, read-through checkbox). Read this when the reader is a human.
+- **`references/sources.md`** — Annotated bibliography behind the rules. Load this **only when revising the skill**, not when authoring a document.
 
 Rules in every file are tagged `[C]` comprehension, `[A]` authoring, `[S]` surface, `[E]` ethics/accountability. The templates pull the tags that matter for their artifact.
 

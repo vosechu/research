@@ -179,6 +179,7 @@ Things that are worth the length when present:
 1. **Check whether your team already has a runbook template or convention.** If yes, use it. If no team standard exists but the DATA-space template `3127574956` fits the shape of your component, anchor on it.
 2. **Add each section to your task list.** Use TaskCreate with one task per section. Drafting in order prevents skipping ahead to the resolution steps (the easy part) and starving Symptoms and Severity (the hard part — getting the gate right).
 3. **Write the First Check and Escalate When gates before the resolution steps.** The gates are what distinguish a runbook from a procedure list. Get the gates right, resolution steps fall into place.
-4. **Each step gets an exit criterion.** If you can't write a check column for a step, rewrite the step until you can.
-5. **Dry-run the runbook against a past incident.** Pick one real incident this runbook would cover and walk through it on paper. If any step doesn't apply, the runbook is wrong (or the incident was miscategorized — either way, fix one of them).
-6. **Update the `Last verified` date only when someone has followed the runbook end-to-end against a real or simulated incident within the last 6 months.** An aspirational date is worse than a blank.
+4. **Write the steps under the controlled-language rules in [doc-writing-core](../references/doc-writing-core.md), "Controlled language for procedures."** 20 words per step, one instruction per sentence, one term per thing. Those rules come from aerospace maintenance manuals, written for a reader in exactly this state.
+5. **Each step gets an exit criterion.** If you can't write a check column for a step, rewrite the step until you can.
+6. **Dry-run the runbook against a past incident.** Pick one real incident this runbook would cover and walk through it on paper. If any step doesn't apply, the runbook is wrong (or the incident was miscategorized — either way, fix one of them).
+7. **Update the `Last verified` date only when someone has followed the runbook end-to-end against a real or simulated incident within the last 6 months.** An aspirational date is worse than a blank.

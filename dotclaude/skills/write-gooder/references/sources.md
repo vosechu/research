@@ -1,6 +1,6 @@
 # Sources — doc-writing bibliography
 
-Provenance for the rules in `doc-writing-core.md`, `appendix-llm.md`, and `appendix-human.md`. Load this **only when revising the skill** — you don't need it to author a document. The 29 sources below were extracted into 335 tagged rules; this is the annotated reading list behind that extraction.
+Provenance for the rules in `doc-writing-core.md`, `appendix-llm.md`, and `appendix-human.md`. Load this **only when revising the skill** — you don't need it to author a document. The sources below were extracted into tagged rules; this is the annotated reading list behind that extraction.
 
 **Audience legend:** L = LLM-facing, H = human-facing, B = both.
 
@@ -51,7 +51,10 @@ Default to **[B]** when in doubt. Reserve **[L]** for rules that depend on model
 - [H] **[Top 10 tips for Microsoft style and voice](https://learn.microsoft.com/en-us/style-guide/top-10-tips-style-voice)**. Prescriptive enforceable rules.
 - [H] **[Google developer documentation style — Voice and tone](https://developers.google.com/style/tone)** (+ [full guide](https://developers.google.com/style)). Conversational, concise, consistent terminology.
 - [H] **[Writing for GOV.UK](https://www.gov.uk/guidance/content-design/writing-for-gov-uk)**. Reading age, sentence length, front-loading the point.
+- [H] **[Google developer documentation style — Write for a global audience](https://developers.google.com/style/translation)**. Primary source for `global-audience.md`: helper words and relative pronouns kept in, redundancy that buys clarity, primary-sense words, conditional-clause-first order, term consistency for machine translation, idiom/humor/culture/season bans. Paired with its [Contractions](https://developers.google.com/style/contractions) page, which recommends negation contractions because scanners drop a standalone "not."
+- [H] **[ISO 24495-1:2023 — Plain Language, Part 1: Governing principles and guidelines](https://www.iso.org/standard/78907.html)**. The standards-body framing for plain language. Aimed at general-public documents but explicitly scoped to cover technical writing and controlled languages. Cite it when a review wants a standard to point at; the Google guide is what you actually write from.
 - [H] **[Plain language guidelines (plainlanguage.gov)](https://www.plainlanguage.gov/guidelines/)**. Audience analysis, active voice, short sentences, verbs over nominalizations.
+- [B] **[ASD-STE100 Simplified Technical English](https://en.wikipedia.org/wiki/Simplified_Technical_English)** — Issue 9, January 2025. Controlled English for aerospace maintenance docs: 53 writing rules plus a ~900-word approved dictionary, free from [asd-ste100.org](https://asd-ste100.org/). Source of the procedural rules in `doc-writing-core.md` (20-word steps, one instruction per sentence, simple tenses, three-word noun clusters, one word one meaning). The dictionary is deliberately not adopted; the article's misapplication section explains why.
 - [H] **[Purdue OWL — Conciseness](https://owl.purdue.edu/owl/general_writing/academic_writing/conciseness/index.html)**. Canonical "eliminating wordiness" checklist.
 - [L] **[Anthropic — Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)** — 2024-12-19. Simple composable patterns.
 - [L] **[Anthropic — Equipping agents with Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)**. Canonical on Skill structure.

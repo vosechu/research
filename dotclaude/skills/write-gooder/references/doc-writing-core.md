@@ -7,7 +7,7 @@ Two layers:
 1. **Comprehension under attention scarcity** determines whether the reader gets the answer.
 2. **Prose craft** determines whether it lands.
 
-Appendices: [LLM-only mechanics](appendix-llm.md) · [human-only mechanics](appendix-human.md).
+Appendices: [LLM-only mechanics](appendix-llm.md) · [human-only mechanics](appendix-human.md). Layers on top of either: [global audience](global-audience.md), for readers whose first language isn't English.
 
 ## What this guide covers
 
@@ -44,6 +44,7 @@ Core is almost entirely **[C]** with some **[A]**.
 - **Paragraphs ≤ 5 sentences.** Longer paragraphs read as a wall. **[C]**
 - **Bullets over prose** for parallel items. Lists are scannable; paragraphs aren't. **[C]**
 - **Tables for parametric data.** Parameter/value, option/default, environment/account. Tables compress; prose expands. **[C]**
+- **One answer type per table, and sort by the driving quantity.** A grid whose cells mix measurements with prose and `n/a` is answering several questions at once, and every cell that can't hold the measurement gets backfilled with words. Split by answer type, one table each. Then order rows by whatever drives the result, so a threshold appears as the row where a column flips and needs no prose at all. **[C]**
 - **Whitespace** between chunks. Density hides the rules that matter. **[C]**
 - **A single newline is not a line break in rendered Markdown.** Consecutive source lines joined by one newline collapse into one paragraph (the break becomes a space), so a stacked label block (`Run by:` / `Target:` / `Pass criterion:`, or `Target:` / `Host:` / `Telemetry:`) renders as a run-on. Put each on its own line with a trailing `<br>`, a blank line between them, or an unordered list. A frequent miss. **[C] [S]**
 
@@ -51,7 +52,7 @@ Core is almost entirely **[C]** with some **[A]**.
 
 - **Set a word budget before drafting, and treat it as a gate.** Derive it from what drives the reader's need to be told, not from the size of the thing described (a PR: 40 words per file touched, clamped 60–200, since files predict how many separate explanations are owed; a rule file: shorter than the code it gates). Exempt fixed boilerplate and evidence checklists; budget the prose, where padding actually lives. Measure with `wc -w`. Over budget is a failure whose only fix is deletion. Without a number, "as short as it needs to be" resolves to whatever length you drafted, every time. **[A]**
 - **Cut by half** (Nielsen). Then read it cold and cut again where you find slack. **[A]**
-- **Delete 25% after drafting, adding nothing and moving nothing.** A quota, not a question: "what can I cut?" reliably answers "nothing, it's all useful," because the author is grading their own draft. If you can't find a quarter, you're reading as the author rather than the reader. **[A]**
+- **Delete 25% after drafting, adding nothing and moving nothing.** A quota, not a question: "what can I cut?" reliably answers "nothing, it's all useful," because the author is grading their own draft. If you can't find a quarter, you're reading as the author rather than the reader. Cut sentences and sections, never the grammar inside a sentence: dropping a "that" or an article to hit the number costs the reader more than it saves, most of all a reader in their second language (see [global audience](global-audience.md), "Put words back"). **[A]**
 - **Beware the clarity escape hatch.** "Length isn't the metric, clarity is" reads as wisdom and functions as permission, since the writer is the one judging clarity. Any draft passes it. Budget and quota bind; appeals to clarity don't. **[A]**
 - **Zero-shot first; add examples only if the reader fails without them.** Docs bloat fast when examples get added preemptively. **[A]**
 - **One real example beats a descriptive paragraph** when you do include one (Osmani). **[C]**
@@ -82,6 +83,22 @@ Core is almost entirely **[C]** with some **[A]**.
 - **Short words.** 3–5 letters land faster than 8–9; long words cause the eye to skip adjacent short words (GOV.UK). **[C]**
 - **Short sentences.** Cap at 25 words (GOV.UK). Break on "and," "but," "because" when you can. **[C]**
 
+### Controlled language for procedures
+
+Anything the reader executes step by step (runbook, migration guide, gameday script) earns tighter constraints than prose. These come from [ASD-STE100 Simplified Technical English](https://en.wikipedia.org/wiki/Simplified_Technical_English), the controlled English aerospace writes maintenance manuals in: 53 rules aimed at readers who are tired, hurried, or reading in a second language. That is the 3am on-call reader exactly.
+
+- **Cap procedural sentences at 20 words**, descriptive prose at 25. A step over 20 words is usually two steps. **[C]**
+- **One instruction per sentence.** "Scale the deployment and confirm the lag drops" hides a second action behind an "and," and a hurried reader does the first half only. Split it. **[C]**
+- **Simple tenses only, no stacked auxiliaries.** "The consumer should have been able to be restarted" is unreadable under pressure. "Restart the consumer" is the step. **[C]**
+- **Use "-ing" only as a noun or a modifier**, never as the verb of a step. "Checking the lag" is not an instruction; "check the lag" is. **[C]**
+- **Keep noun clusters to three words.** "log meter consumer group offset reset tool" makes the reader guess which noun modifies which. Break it with a preposition, or just name the tool. **[C]**
+- **One word, one meaning, everywhere in the doc.** If it's a cell in step 1, it isn't a stack in step 4 or a deployment in step 9. Synonym variation is a lookup the reader pays for, and it reads as three things where there is one. Same for parts of speech: don't verb a noun because it sounds tighter. **[C]**
+- **Don't drop articles, subjects, or verbs to shorten a step.** "Restart consumer, verify lag" saves three words and buys ambiguity. Cut whole sentences, not the grammar inside them. **[A]**
+- **Lead a safety step with the command or the condition, not the reason.** "Before you scale below 2 replicas, drain the node" puts the trigger first. "The rolling deploy uses a 2-replica guard, so…" buries it. **[C]**
+- **Active voice in procedures, no exceptions.** In descriptive sections, passive is allowed only when the actor is genuinely unknown. **[C]**
+
+**What not to import:** STE also ships a dictionary of roughly 900 approved words, one meaning each. Don't adopt it. It's tuned for aircraft maintenance vocabulary, it takes training to apply correctly, and its own critics note it yields stilted prose when used as a substitute for a style guide rather than on top of one. Take the writing rules, skip the word list.
+
 ### No hedging, no puffing
 
 - **Drop hedges:** "genuinely," "honestly," "straightforward," "relatively," "fairly," "essentially." Either commit or cut. **[C]**
@@ -110,6 +127,7 @@ Core is almost entirely **[C]** with some **[A]**.
 - **Write the specifics and stop before generalizing.** The rule after the examples is often the examples themselves. **[A]**
 - **Let facts speak.** Editorializing their importance is how AI prose and PR marketing both fail. **[C]**
 - **A code comment states the constraint a future edit could violate, not the history of how you found it.** The reader needs the rule and the reason it exists; they were not in the room. Cut in-process notes — "a `package.json` trigger would have missed #34 and #36", "this used to be X before we hit Y", "as discussed". A bare PR or ticket number is not a reason: it makes the reader open two closed tabs to decode a rule that should stand alone. Name the mechanism instead ("a condition on `package.json` misses lockfile-only changes"). The test: would this comment still teach someone six months from now, with no access to the discussion that produced it? **[C] [A]**
+- **Never cite a count of something the doc or repo already contains.** Line counts ("`appendix-llm.md` (209 lines)"), file counts, "the nine templates below," "a 29-source extraction." Each one is a second place the fact lives, and the edit that changes the thing almost never updates the sentence describing it. The counts rot within a commit or two, and the reader who spot-checks one finds a wrong number and stops trusting the parts they can't check. Name the thing instead of measuring it: "the LLM appendix," not "the 209-line LLM appendix." Where a magnitude is genuinely load-bearing, it's a rule and not a description, so write it as one: "keep CLAUDE.md under 200 lines" is a cap the reader must respect, "CLAUDE.md is 180 lines" is rot waiting to happen. **[C] [A]**
 - **An explicit unknown beats vague filler.** Write `???`, "not captured," or "couldn't confirm" where you don't know — not "varies," "TBD-ish," or "depends." A marked gap is honest and actionable; vague filler reads as an answer when it isn't, and the reader trusts it. Derive the real number first; only fall back to a marked gap. **[C] [A]**
 
 ---
@@ -125,4 +143,4 @@ Before you ship, read it cold. Four questions:
 
 ---
 
-**Sources cited:** Nielsen (NNGroup 1997, "cut by half," inverted pyramid, scanning rates). GOV.UK (25-word sentence cap, reading-age vocabulary). Osmani ("process over prose," one real example, Never-rules). Larson ("write five, then synthesize," "write specifics, stop before generalizing," uninvolved-reader test). OpenAI reasoning-model guidance (delimiters for structure). Anthropic (Claude Code best practices, specificity in instructions, "would removing this cause mistakes?"). `avoid-ai-writing` local skill (puff/filler/tell lists).
+**Sources cited:** Nielsen (NNGroup 1997, "cut by half," inverted pyramid, scanning rates). GOV.UK (25-word sentence cap, reading-age vocabulary). Osmani ("process over prose," one real example, Never-rules). Larson ("write five, then synthesize," "write specifics, stop before generalizing," uninvolved-reader test). OpenAI reasoning-model guidance (delimiters for structure). ASD-STE100 Simplified Technical English (procedural sentence caps, one instruction per sentence, term consistency, noun-cluster limit). Anthropic (Claude Code best practices, specificity in instructions, "would removing this cause mistakes?"). `avoid-ai-writing` local skill (puff/filler/tell lists).
