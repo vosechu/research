@@ -32,6 +32,8 @@ The wording is deliberate — "I, the human author" makes it clear this is not a
 
 The checkbox raises the social cost of rubber-stamp review. If it's still unticked at merge time, something has gone wrong.
 
+**"Unticked by default" applies to authoring, not to re-editing.** `gh pr edit --body-file` replaces the entire body, so revising a description whose author already ticked the box will silently untick it, and the tick is not yours to remove. Read the live body first (`gh pr view <N> --json body --jq '.body'`), carry the current state into your draft, and confirm it after the edit.
+
 ### 3. Starting points in the code
 
 Where should a reviewer look first? Give them pointers with a one-line note on each.
