@@ -8,7 +8,7 @@ Nothing else in the skill matters if the model doesn't load it. The `description
 
 - **Write it as a trigger, not a summary.** "Use when the user is drafting a PR description" beats "A skill for writing PR descriptions." State *when* to invoke, not *what* the skill contains.
 - **Lead with the invocation condition:** "Use when …," "Invoke when the user asks …," "Activates when …"
-- **Name the skill for the decision, not the topic.** `writing-pr-descriptions` beats `pr-guide`. The name is a second trigger surface — readable at a glance in skill lists.
+- **Name the skill for the decision, not the topic.** `writing-pr-descriptions` beats `pr-guide`. The name is a second trigger surface, readable at a glance in skill lists.
 - **Keep it short.** It lives in context on every turn. One or two sentences.
 - **Include the value prop only after the trigger.** Trigger first, then a dash, then what the skill does.
 
@@ -17,7 +17,7 @@ Nothing else in the skill matters if the model doesn't load it. The `description
 ```yaml
 ---
 name: writing-pr-descriptions
-description: Use when drafting a PR description or `gh pr create` body — produces a 100–200 word summary + test plan with the right register for this repo.
+description: Use when drafting a PR description or `gh pr create` body. Produces a 100–200 word summary + test plan with the right register for this repo.
 ---
 ```
 
@@ -30,7 +30,7 @@ description: A comprehensive guide for writing excellent pull request descriptio
 ---
 ```
 
-The second version is a summary. The model reads it, can't tell when to fire, and skips. "Comprehensive" and "best practices" are puff — cut them.
+The second version is a summary. The model reads it, can't tell when to fire, and skips. "Comprehensive" and "best practices" are puff, so cut them.
 
 ## Three-level progressive disclosure
 
@@ -50,11 +50,11 @@ If you want Claude to read a reference file, `SKILL.md` must tell it to. Otherwi
 
 ## Workflow design inside SKILL.md
 
-A skill is an action guide, not a reference — unless the skill is explicitly a reference-type, in which case mark it so at the top. Most skills are workflows, and workflows get followed while prose essays don't.
+A skill is an action guide, not a reference, unless the skill is explicitly a reference-type, in which case mark it so at the top. Most skills are workflows, and workflows get followed while prose essays don't.
 
-- **Exit criteria per step.** "Run `bundle exec rspec spec/billing_spec.rb`, confirm green" — not "verify the tests pass."
+- **Exit criteria per step.** "Run `bundle exec rspec spec/billing_spec.rb`, confirm green" beats "verify the tests pass."
 - **Three-tier boundaries: Always do / Ask first / Never do.** Removes ambiguity about when to pause. Use a table when there's more than two or three entries per tier.
-- **Anti-rationalization tables** for steps that get skipped in practice. Pair the excuse with the rebuttal inline — don't make Claude reconstruct the argument against cutting the corner.
+- **Anti-rationalization tables** for steps that get skipped in practice. Pair the excuse with the rebuttal inline, so Claude doesn't have to reconstruct the argument against cutting the corner.
 
 Example of the third:
 
@@ -68,24 +68,24 @@ Example of the third:
 ```markdown
 ---
 name: skill-name-in-kebab-case
-description: Use when <trigger> — <one-line value prop>
+description: Use when <trigger>. <one-line value prop>
 ---
 ```
 
-The `name` is the directory name (`.claude/skills/skill-name/SKILL.md`). Kebab-case, no spaces, no underscores. Don't prefix with the plugin name — the harness adds that when the skill is part of a plugin.
+The `name` is the directory name (`.claude/skills/skill-name/SKILL.md`). Kebab-case, no spaces, no underscores. Don't prefix with the plugin name, since the harness adds that when the skill is part of a plugin.
 
 ## File layout
 
 ```
 skills/
   skill-name/
-    SKILL.md              # hub — required
+    SKILL.md              # hub, required
     references/           # optional, loaded on demand
       schema.md
       forms.md
     templates/            # optional, loaded on demand
       form-template.md
-    scripts/              # optional — document whether to run or read
+    scripts/              # optional, document whether to run or read
       validate.sh
 ```
 

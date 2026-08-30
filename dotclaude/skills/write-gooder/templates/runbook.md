@@ -1,6 +1,6 @@
 # Runbook template
 
-A runbook exists to **help a sleep-deprived on-call engineer resolve an incident at 3am without escalating, escalate to the right people when they must, and not make things worse**. Every other reader — a person reviewing the runbook, a person onboarding into the rotation, a PM estimating response time — is secondary.
+A runbook exists to **help a sleep-deprived on-call engineer resolve an incident at 3am without escalating, escalate to the right people when they must, and not make things worse**. Every other reader (a person reviewing the runbook, a person onboarding into the rotation, a PM estimating response time) is secondary.
 
 A runbook is not a design doc, a postmortem, a training manual, or a narrative of how the system works. If a step requires reading background prose to execute, the step is broken.
 
@@ -8,9 +8,9 @@ A runbook is not a design doc, a postmortem, a training manual, or a narrative o
 
 There is no single canonical runbook template at NR. Different orgs have built their own:
 
-- [DATA-space Runbook Template (3127574956)](https://newrelic.atlassian.net/wiki/spaces/DATA/pages/3127574956) — structurally the most complete. Header table, Architecture diagram, Business Impact with severity matrix, Support Contacts, Debugging queries, Resolution Processes as per-scenario step tables. Anchor on this one when you can.
-- [Synthetics Runbook Template (5278761277)](https://newrelic.atlassian.net/wiki/spaces/Synthetics/pages/5278761277) — alert-focused: Alert/Error Name + Impacted Use Cases shape.
-- [GTS Launch Runbook Template (4556554532)](https://newrelic.atlassian.net/wiki/spaces/SUP/pages/4556554532) — GA-launch-readiness checklist, not an operational runbook. Different artifact.
+- [DATA-space Runbook Template (3127574956)](https://newrelic.atlassian.net/wiki/spaces/DATA/pages/3127574956): structurally the most complete. Header table, Architecture diagram, Business Impact with severity matrix, Support Contacts, Debugging queries, Resolution Processes as per-scenario step tables. Anchor on this one when you can.
+- [Synthetics Runbook Template (5278761277)](https://newrelic.atlassian.net/wiki/spaces/Synthetics/pages/5278761277): alert-focused, with an Alert/Error Name + Impacted Use Cases shape.
+- [GTS Launch Runbook Template (4556554532)](https://newrelic.atlassian.net/wiki/spaces/SUP/pages/4556554532): GA-launch-readiness checklist, not an operational runbook. Different artifact.
 
 If your team already has a runbook standard, use it. If not, follow this template and lean on the DATA-space shape for the structural scaffolding.
 
@@ -23,7 +23,7 @@ What this template adds on top:
 
 ## Structure
 
-Every section below is required unless marked optional. Blank sections are fine when there's nothing to say — "no postmortem-worthy failure modes yet" is a valid line. Missing sections aren't.
+Every section below is required unless marked optional. Blank sections are fine when there's nothing to say, since "no postmortem-worthy failure modes yet" is a valid line. Missing sections aren't.
 
 ### 1. Header table
 
@@ -48,7 +48,7 @@ What an on-call sees that brings them here. Be specific.
 - **What to put in:** the alert name, the paging condition, the error message or metric signature. Direct quotes from the alert. Screenshots of the paging dashboard if the visual pattern matters.
 - **What to keep out:** architectural exposition, theory of the failure mode. Those belong further down.
 
-A runbook often covers one alert. If it covers several, list them as sub-headings, each with its own symptom section — don't merge them.
+A runbook often covers one alert. If it covers several, list them as sub-headings, each with its own symptom section. Don't merge them.
 
 ### 3. Severity / business impact
 
@@ -66,7 +66,7 @@ Use a table when the severity maps to observable criteria:
 | Data unable to parse | 1 |
 ```
 
-The DATA-space template anchors on the `911 sev` convention — use it if your org does. Customer-facing SLOs belong here too: "breaches 99.9% availability SLO after 26 min."
+The DATA-space template anchors on the `911 sev` convention; use it if your org does. Customer-facing SLOs belong here too: "breaches 99.9% availability SLO after 26 min."
 
 ### 4. First check (cannot skip)
 
@@ -77,7 +77,7 @@ The single thing an on-call does before anything else. One step, with an exit cr
 
 Example that lands:
 
-> **First check:** Load [overview dashboard](url). If the `ingest rate (5m)` metric is above 10 MB/s, this is real — continue. If below, this is a post-traffic-drop flap — silence the alert for 30 min and link to this runbook in the silence comment.
+> **First check:** Load [overview dashboard](url). If the `ingest rate (5m)` metric is above 10 MB/s, this is real, so continue. If below, this is a post-traffic-drop flap: silence the alert for 30 min and link to this runbook in the silence comment.
 
 ### 5. Escalate when
 
@@ -95,12 +95,12 @@ Example that lands:
 
 ### 6. Resolution steps
 
-Numbered procedures, one per failure mode. Each step has an exit criterion — what the on-call checks to confirm the step worked.
+Numbered procedures, one per failure mode. Each step has an exit criterion: what the on-call checks to confirm the step worked.
 
 Structure each scenario as a table when the steps are parallel (step / command / check):
 
 ```markdown
-**Scenario A — consumer lag from upstream backup**
+**Scenario A: consumer lag from upstream backup**
 
 | Step | Command | Confirm |
 |---|---|---|
@@ -112,7 +112,7 @@ Structure each scenario as a table when the steps are parallel (step / command /
 
 **Every step has a check column.** A step without an exit criterion is a step an on-call can claim to have done without actually doing it.
 
-If one scenario has more than ~6 steps, split it or rethink the runbook — long procedures are where mistakes happen.
+If one scenario has more than ~6 steps, split it or rethink the runbook, because long procedures are where mistakes happen.
 
 ### 7. What NOT to do
 
@@ -124,7 +124,7 @@ Example that lands:
 > - **Do NOT** scale the consumer below 2 replicas. The rolling-deploy uses a 2-replica guard; going lower kills availability.
 > - **Do NOT** manually edit `tdp.usage` events in NRDB. Meter corrections go through the `raw-usage-correction` tool only.
 
-If there are no obvious footguns, omit this section. But look hard first — most systems have at least one.
+If there are no obvious footguns, omit this section. But look hard first, because most systems have at least one.
 
 ### 8. Debugging queries / dashboards (optional)
 
@@ -177,9 +177,9 @@ Things that are worth the length when present:
 ## Process
 
 1. **Check whether your team already has a runbook template or convention.** If yes, use it. If no team standard exists but the DATA-space template `3127574956` fits the shape of your component, anchor on it.
-2. **Add each section to your task list.** Use TaskCreate with one task per section. Drafting in order prevents skipping ahead to the resolution steps (the easy part) and starving Symptoms and Severity (the hard part — getting the gate right).
+2. **Add each section to your task list.** Use TaskCreate with one task per section. Drafting in order prevents skipping ahead to the resolution steps (the easy part) and starving Symptoms and Severity (the hard part, getting the gate right).
 3. **Write the First Check and Escalate When gates before the resolution steps.** The gates are what distinguish a runbook from a procedure list. Get the gates right, resolution steps fall into place.
 4. **Write the steps under the controlled-language rules in [doc-writing-core](../references/doc-writing-core.md), "Controlled language for procedures."** 20 words per step, one instruction per sentence, one term per thing. Those rules come from aerospace maintenance manuals, written for a reader in exactly this state.
 5. **Each step gets an exit criterion.** If you can't write a check column for a step, rewrite the step until you can.
-6. **Dry-run the runbook against a past incident.** Pick one real incident this runbook would cover and walk through it on paper. If any step doesn't apply, the runbook is wrong (or the incident was miscategorized — either way, fix one of them).
+6. **Dry-run the runbook against a past incident.** Pick one real incident this runbook would cover and walk through it on paper. If any step doesn't apply, the runbook is wrong (or the incident was miscategorized; either way, fix one of them).
 7. **Update the `Last verified` date only when someone has followed the runbook end-to-end against a real or simulated incident within the last 6 months.** An aspirational date is worse than a blank.

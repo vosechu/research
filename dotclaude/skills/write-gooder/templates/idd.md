@@ -8,13 +8,13 @@ An IDD is not a CDD, a one-pager, a pitch deck, or a status doc. It does not nar
 
 This template is a **content guide** for the [NR IDD template](https://newrelic.atlassian.net/wiki/templates?template=3671786078&search=init). The [IDD policy page](https://newrelic.atlassian.net/wiki/spaces/STAN/pages/3798041533) (STAN, page 3798041533) defines the process: who writes (the assigned architect), who signs off (architect lead + engineering leader + product leader), when to consult others, and the review budget.
 
-**Review budget — budget this before circulating:**
+**Review budget, to settle before circulating:**
 
 - Work under 1 quarter → give reviewers 2 days
 - Work under 3 quarters → give reviewers 1 week
 - Work over 3 quarters → give reviewers 2 weeks
 
-**Required consultations — know before you draft:**
+**Required consultations, to know before you draft:**
 
 - Any new or changed public / private API (ingest, NerdGraph, REST) → `#api-review-board`
 - Any new cell or cellular-architecture change → `#cell-arch`
@@ -25,7 +25,7 @@ The NR process doc doesn't prescribe the content shape of the IDD body. That's w
 
 ## Structure
 
-The spine below is ordered for a cold architect-lead scan. Any section can be short when there's nothing to say, but every section must be present — an IDD missing Alternatives or Blast Radius reads as the author not having done the thinking.
+The spine below is ordered for a cold architect-lead scan. Any section can be short when there's nothing to say, but every section must be present. An IDD missing Alternatives or Blast Radius reads as the author not having done the thinking.
 
 ### 1. Summary
 
@@ -66,7 +66,7 @@ The architectural decision, with diagrams. A reviewer should be able to sketch t
 - **What to put in:** the high-level architecture diagram (services, data flow, boundaries), the contract changes (APIs, event types, schemas), the primitives being used, the primitives being built new and why existing ones don't suffice.
 - **What to keep out:** line-level implementation detail (that's a CDD), micro-services-style detail on each component, rollout mechanics (that's later).
 
-Diagrams are load-bearing here. The IDD doc instructs: "written as docs and not slides" — diagrams as images embedded in the doc are right; a separate slide deck is wrong.
+Diagrams are load-bearing here. The IDD doc instructs: "written as docs and not slides." Diagrams as images embedded in the doc are right; a separate slide deck is wrong.
 
 ### 5. Primitives: reused vs new
 
@@ -84,7 +84,7 @@ Every "new" row is a cost and a review risk. If a reviewer sees three "new" rows
 
 ### 6. APIs
 
-If APIs are in scope, this section is **required** — and so is `#api-review-board` consultation. List every public and private API the initiative creates or changes.
+If APIs are in scope, this section is **required**, and so is `#api-review-board` consultation. List every public and private API the initiative creates or changes.
 
 Use the canonical CDD API shape (Object Definitions + GraphQL/REST tables, NRDB event schemas). That's what reviewers expect, and it's what the API review board reviews against.
 
@@ -103,7 +103,7 @@ If nothing changes, say so in one sentence.
 
 Two or three alternatives, each with one line on what it was and one line on why you rejected it. A short table works well when the axes are parallel (cost, complexity, blast radius, reversibility, vendor lock).
 
-This section lets a reviewer argue against the choice instead of against the prose. An IDD that skips this reads as "architect already decided" — which makes the review performative.
+This section lets a reviewer argue against the choice instead of against the prose. An IDD that skips this reads as "architect already decided," which makes the review performative.
 
 If no alternatives were viable, say so and say why. "We considered reusing the X service; it doesn't support multi-tenancy and adding it is a larger project than this one" counts.
 
@@ -130,7 +130,7 @@ Each item becomes a real CDD later with its own review. Listing them here commit
 
 ### 11. Dependencies and sequencing
 
-Teams, initiatives, primitives, or external vendors this initiative depends on — and what depends on it.
+Teams, initiatives, primitives, or external vendors this initiative depends on, and what depends on it.
 
 A table works when the dependencies are parametric (what / direction / blocking-or-not / contact).
 
@@ -142,9 +142,9 @@ Same shape as the PR and CDD templates: name what you want the reviewer to focus
 
 Each item:
 
-1. **The concrete thing** (a specific API, primitive, cell boundary — not "scale").
+1. **The concrete thing:** a specific API, primitive, or cell boundary, not "scale."
 2. **Why it matters** (what breaks, what it costs).
-3. **What you're weighing** — options, leading choice, why.
+3. **What you're weighing:** options, leading choice, why.
 
 Mix concerns (risks accepted, sanity-check wanted) and open questions (decisions not yet made). If a question depends on the API review board, say so.
 
@@ -172,8 +172,8 @@ Things that are worth the length when present:
 
 1. **Confirm an IDD is the right artifact.** If the work is under an initiative, use the IDD template (3671786078). If it's a single CDD-sized change, write a CDD instead.
 2. **Check the two required consultations before drafting.** APIs in scope → message `#api-review-board` to schedule the review. Cell changes in scope → message `#cell-arch`. These reviews can run in parallel with the architect-lead review, not after.
-3. **Add each section to your task list.** Use TaskCreate with one task per section. Drafting in order prevents skipping ahead to primitives and alternatives — the sections that carry the most review leverage.
+3. **Add each section to your task list.** Use TaskCreate with one task per section. Drafting in order prevents skipping ahead to primitives and alternatives, the sections that carry the most review leverage.
 4. **Draft the summary last.** Write a placeholder first, rewrite after Problem, Proposed architecture, Primitives, and Alternatives are done. You won't know the load-bearing constraint until those sections exist.
 5. **For each sentence, ask: "does an architect lead need this to sign off?"** If the answer is no, cut it. Exec-audience framing and narrative history are the most common forms of padding at IDD altitude.
-6. **Budget the review window correctly.** If the work is over 3 quarters, give reviewers 2 weeks. An IDD for a multi-quarter initiative circulated with a 48-hour review window is asking for rubber-stamp approval — the reviewer's time is the gate, not a courtesy.
-7. **Skim-test the draft cold.** After 60 seconds of scanning (summary + headings + sign-off table + one diagram), can an architect who hasn't seen the initiative say what you propose to build, what primitives you reuse, and where the biggest risk is? If not, the summary is hiding the point or the diagram is wrong — fix those, not prose.
+6. **Budget the review window correctly.** If the work is over 3 quarters, give reviewers 2 weeks. An IDD for a multi-quarter initiative circulated with a 48-hour review window is asking for rubber-stamp approval. The reviewer's time is the gate, not a courtesy.
+7. **Skim-test the draft cold.** After 60 seconds of scanning (summary + headings + sign-off table + one diagram), can an architect who hasn't seen the initiative say what you propose to build, what primitives you reuse, and where the biggest risk is? If not, the summary is hiding the point or the diagram is wrong. Fix those, not prose.

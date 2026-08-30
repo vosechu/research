@@ -10,8 +10,8 @@ Load no appendix. The human/LLM scanning rules (F-pattern, reading age, front-lo
 
 For every comment, ask: **would deleting this let someone silently break the thing it sits next to?**
 
-- **Yes** — keep it. Someone "tidying up" removes the line and the failure shows up later, somewhere else.
-- **No** — delete it. It is decoration, and decoration costs attention on every future read.
+- **Yes:** keep it. Someone "tidying up" removes the line and the failure shows up later, somewhere else.
+- **No:** delete it. It is decoration, and decoration costs attention on every future read.
 
 Silently is the load-bearing word. If deleting the comment causes a loud, immediate failure, the code already teaches the lesson, so the comment adds nothing.
 
@@ -33,7 +33,7 @@ Silently is the load-bearing word. If deleting the comment causes a loud, immedi
 
 **Leave it uncommented.** Never invent a rationale.
 
-A guessed reason is worse than silence: the next reader trusts it, and a plausible-but-wrong explanation survives longer than an obvious gap. If the reason matters and you cannot determine it, say so outside the code — in the PR, or by asking the person who wrote it.
+A guessed reason is worse than silence: the next reader trusts it, and a plausible-but-wrong explanation survives longer than an obvious gap. If the reason matters and you cannot determine it, say so outside the code, in the PR or by asking the person who wrote it.
 
 ## Placement
 

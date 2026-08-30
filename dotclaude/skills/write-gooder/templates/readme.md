@@ -1,6 +1,6 @@
 # README template
 
-A repo README exists to **help a stranger decide whether this project is what they want, and if so, get going with it** — without reading the code and without pinging the team. Onboarding engineers, external consumers, offboarding backfill readers, and the author six months later all land here.
+A repo README exists to **help a stranger decide whether this project is what they want, and if so, get going with it**, without reading the code and without pinging the team. Onboarding engineers, external consumers, offboarding backfill readers, and the author six months later all land here.
 
 A README is not a marketing page, a spec, a design doc, or a changelog. If it feels like a pitch, or if it narrates the project's history rather than its current shape, it's the wrong shape.
 
@@ -30,7 +30,7 @@ The very first thing, as a heading plus one sentence. A stranger opens the READM
 - **What to put in:** one sentence. Concrete noun + concrete verb. "This service meters log ingest bytes per account." "This gem parses and validates the `papers_manifest.yml` license inventory."
 - **What to keep out:** adjectives like *powerful*, *simple*, *robust*, *modern*. They describe your feelings about the project, not what it does.
 
-If you can't write this sentence, the project doesn't have a clear purpose — write that sentence before touching anything else.
+If you can't write this sentence, the project doesn't have a clear purpose, so write that sentence before touching anything else.
 
 ### 2. What (2–3 sentences)
 
@@ -44,7 +44,7 @@ Three sentences. A reader who has never seen the project now knows what it does,
 
 ### 3. Why (optional, 1–3 sentences)
 
-Only include if there's a reason the project exists as its own thing — scope cut, org boundary, rewrite of a predecessor, regulatory requirement. "Why this isn't part of X" is the useful framing.
+Only include if there's a reason the project exists as its own thing: scope cut, org boundary, rewrite of a predecessor, regulatory requirement. "Why this isn't part of X" is the useful framing.
 
 - **What to put in:** the reason for separation, constraint, or split. "Extracted from the monolith in 2024 because the metering code had 40× the deploy frequency of the rest of the service."
 - **What to keep out:** motivation narratives ("we've been wanting to do this for a while"). The project existing is evidence that someone wanted it.
@@ -53,9 +53,9 @@ If Why is just a rewording of What, delete it.
 
 ### 4. Local Setup
 
-The MUST section everyone gets wrong. A stranger clones the repo — what's the shortest path to `tests pass on my laptop`?
+The MUST section everyone gets wrong. A stranger clones the repo. What's the shortest path to `tests pass on my laptop`?
 
-- **What to put in:** the exact commands for build, test, run-locally. Not "run the usual bundle install" — the specific commands, in order, with any preconditions (tool version, env var, credentials source).
+- **What to put in:** the exact commands for build, test, run-locally. Not "run the usual bundle install," but the specific commands, in order, with any preconditions (tool version, env var, credentials source).
 - **What to keep out:** prose narratives of what each step does. Commands explain themselves.
 
 Example that lands:
@@ -82,7 +82,7 @@ The other MUST section that rots the fastest. What keeps this alive in productio
 
 The bridge to every other doc a reader might need. Short, annotated, linked.
 
-- **What to put in:** `[title](url) — one-line what-it's-for`. Two to six links is typical. Group by purpose only if there are enough to warrant it.
+- **What to put in:** `[title](url): one-line what-it's-for`. Two to six links is typical. Group by purpose only if there are enough to warrant it.
 - **What to keep out:** links to every tangentially-related doc in the space. If you wouldn't open it yourself, don't point others at it.
 
 nr-platform-docs covers engineer-focused cross-team concepts; Confluence covers everything else. Use both where appropriate.
@@ -111,7 +111,7 @@ If the service talks Kafka or similar, document the topic names, key shape, and 
 
 ### 10. Engineering Principles (optional)
 
-The MAY section. Include only if there are non-obvious design principles a contributor needs to know before making changes. "All metering must be idempotent under Kafka retry" is worth stating. "We value clean code" is not — every team says that.
+The MAY section. Include only if there are non-obvious design principles a contributor needs to know before making changes. "All metering must be idempotent under Kafka retry" is worth stating. "We value clean code" is not, because every team says that.
 
 If every principle here is generic, delete the section.
 
@@ -123,7 +123,7 @@ One diagram per relationship type. Don't stack four diagrams of the same archite
 
 ### 12. FAQ (optional, last)
 
-Include only if there's a question that gets asked twice a week and doesn't fit elsewhere. Each entry should be **one line plus a link to the authoritative doc** — if an FAQ entry is the canonical source, move the content to its real home and link from here.
+Include only if there's a question that gets asked twice a week and doesn't fit elsewhere. Each entry should be **one line plus a link to the authoritative doc**. If an FAQ entry is the canonical source, move the content to its real home and link from here.
 
 A bloated FAQ is a sign of broken documentation structure. Cut before adding.
 
@@ -149,7 +149,7 @@ Things that are worth the length when present:
 
 1. **Check the canonical standard first.** Open [STAN/Repo README](https://newrelic.atlassian.net/wiki/spaces/STAN/pages/2655518778) and list which MUST sections are missing from the current README. Those are the priority.
 2. **Add each section to your task list.** Use TaskCreate with one task per section you're adding or rewriting. Drafting in order prevents skipping the hard sections (What, Operations) for the easy ones (Dependencies).
-3. **Draft What first, in 2–3 sentences.** If you can't, the project is the thing that needs fixing — not the README. Stop and write What with the team.
+3. **Draft What first, in 2–3 sentences.** If you can't, the project is the thing that needs fixing, not the README. Stop and write What with the team.
 4. **For each sentence, ask: "does a stranger need this to use or understand the project?"** If the answer is no, cut it. Marketing adjectives, history narratives, and generic principles are the most common forms of padding.
 5. **Verify Local Setup works against a clean clone.** Run the exact commands you wrote, in the order you wrote them, on a fresh checkout. If any step fails or needs unstated prereqs, fix the README before merging.
 6. **Revisit on every non-trivial deploy change.** The Operations section rots faster than the code. If the deploy path or dashboard URL changes, update the README in the same PR.

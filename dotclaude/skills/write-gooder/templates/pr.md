@@ -4,17 +4,17 @@ A PR description exists to **help a human reviewer review well**. It is not a re
 
 ## Structure
 
-Five elements. Any of them can be empty when there's nothing to say — that's fine and often the right answer. Order matters: description first, checkbox second, so the reviewer knows what they'd be agreeing to before seeing the gate.
+Five elements. Any of them can be empty when there's nothing to say, which is fine and often the right answer. Order matters: description first, checkbox second, so the reviewer knows what they'd be agreeing to before seeing the gate.
 
 ### 1. Description
 
 What this does and why, in whatever number of sentences it takes. One sentence is great when it fits. Two or three is fine for work with real context.
 
-**Do not assume the reviewer shares your vocabulary.** If a term isn't already used elsewhere in the repo, define it at first use — even briefly. The reviewer may have last seen this subsystem six months ago, or never. Examples of terms that look obvious to an author but need a one-line gloss for a cold reader:
+**Do not assume the reviewer shares your vocabulary.** If a term isn't already used elsewhere in the repo, define it at first use, even briefly. The reviewer may have last seen this subsystem six months ago, or never. Examples of terms that look obvious to an author but need a one-line gloss for a cold reader:
 
 - Domain jargon: "evals" (automated checks that score LLM output), "predict-don't-act" (a prompt pattern where the model says what it *would* do, without doing it), "threshold-gating" (each assertion must pass ≥ F of N runs for the case to PASS).
 - Feature names the reviewer may not have installed: skills, plugins, agents, specific commands.
-- Implementation terms that have other meanings in the wider ecosystem (e.g., "routing cases" — clarify it's about which skill auto-loads, not about HTTP routing).
+- Implementation terms that have other meanings in the wider ecosystem (e.g., "routing cases," where you should clarify it's about which skill auto-loads, not about HTTP routing).
 
 Also check: **is this framing accurate from the reviewer's point of view?** A change that felt like "rewriting an existing bash script" to you looks like "adding a new tool" to a reviewer who never saw the bash version. **Describe the landing state, not the journey.**
 
@@ -28,7 +28,7 @@ One line, always unticked by default:
 - [ ] I, the human author, have fully read and comprehended this code. Until this is checked, please don't waste time reviewing.
 ```
 
-The wording is deliberate — "I, the human author" makes it clear this is not about the reviewer, and "don't waste time reviewing" tells the reviewer what to do if they see it unticked (namely: come back later).
+The wording is deliberate. "I, the human author" makes it clear this is not about the reviewer, and "don't waste time reviewing" tells the reviewer what to do if they see it unticked (namely: come back later).
 
 The checkbox raises the social cost of rubber-stamp review. If it's still unticked at merge time, something has gone wrong.
 
@@ -38,7 +38,7 @@ The checkbox raises the social cost of rubber-stamp review. If it's still untick
 
 Where should a reviewer look first? Give them pointers with a one-line note on each.
 
-**Use the PR diff URL** — the one GitHub produces when you click a line number in the "Files changed" tab. It looks like:
+**Use the PR diff URL**, the one GitHub produces when you click a line number in the "Files changed" tab. It looks like:
 
 ```
 .../pull/<N>/files#diff-<sha256-of-path>R<line>
@@ -65,19 +65,19 @@ The suffix is `R<line>` for added/unchanged lines (right side of the diff) or `L
 https://<host>/<org>/<repo>/pull/<N>/files#diff-0d4d6ad9…1044d9b3R3
 ```
 
-This holds on github.com and GitHub Enterprise alike. Don't fabricate the hash — compute it. A made-up hash produces a link that loads the Files tab but fails to scroll to or highlight the target line, and there's no visible error.
+This holds on github.com and GitHub Enterprise alike. Don't fabricate the hash; compute it. A made-up hash produces a link that loads the Files tab but fails to scroll to or highlight the target line, and there's no visible error.
 
-Format it as a Markdown link:
+Format it as a Markdown link, with a colon before the note:
 
 ```markdown
-- [tools/skill-evals/run-evals.rb:237](https://source.datanerd.us/org/repo/pull/149/files#diff-<hash>R237) — the predict-don't-act prompt (read carefully)
+- [tools/skill-evals/run-evals.rb:237](https://source.datanerd.us/org/repo/pull/149/files#diff-<hash>R237): the predict-don't-act prompt (read carefully)
 ```
 
-**When to use a SHA-pinned blob URL instead** (`blob/<sha>/path#L123`): for references outside the PR context — archival links in tickets, docs, or cross-repo posts — use the `y`-key permalink. These are permanent (commits are immutable) but land in the file view, not the diff view, so they're worse for in-PR review but better for long-lived references.
+**When to use a SHA-pinned blob URL instead** (`blob/<sha>/path#L123`): for references outside the PR context, such as archival links in tickets, docs, or cross-repo posts, use the `y`-key permalink. These are permanent (commits are immutable) but land in the file view, not the diff view, so they're worse for in-PR review but better for long-lived references.
 
-**Don't use `blob/<branch>/path` URLs** — line numbers drift when the branch moves, and the link silently points to the wrong code after any commit.
+**Don't use `blob/<branch>/path` URLs.** Line numbers drift when the branch moves, and the link silently points to the wrong code after any commit.
 
-**It's okay to have fewer pointers than you feel pressure to include.** If you list five and the fifth one is "`README.md:27` — usage docs," cut it. A pointer that a reviewer wouldn't actually open is filler. Two strong pointers beat six weak ones. Order by importance, not by file path or line number.
+**It's okay to have fewer pointers than you feel pressure to include.** If you list five and the fifth one is "`README.md:27`, usage docs," cut it. A pointer that a reviewer wouldn't actually open is filler. Two strong pointers beat six weak ones. Order by importance, not by file path or line number.
 
 ### 4. Concerns / Open questions
 
@@ -86,17 +86,17 @@ One section for two related things, since they share a shape: "here's a thing I 
 - **Concerns** = risks you've already accepted and want a sanity check on.
 - **Open questions** = decisions you haven't made yet and want input on.
 
-Mix them freely — the reviewer doesn't need the taxonomy, they need the content. Label individual items if the distinction matters ("*Concern:*" vs "*Question:*" prefixes), or don't.
+Mix them freely. The reviewer doesn't need the taxonomy, they need the content. Label individual items if the distinction matters ("*Concern:*" vs "*Question:*" prefixes), or don't.
 
 Each item has three parts:
 
-1. **The concrete thing** (a specific line, flag, default, or decision — not "concurrency").
+1. **The concrete thing:** a specific line, flag, default, or decision, not "concurrency."
 2. **Why it matters** (what breaks, or what the trade-off is).
-3. **What I did and why — or what options I'm weighing.** This is the part that makes the reviewer's response actionable.
+3. **What I did and why, or what options I'm weighing.** This is the part that makes the reviewer's response actionable.
 
 Example of a one-line item that's fine most of the time:
 
-> **No timeout on `Open3.capture2e` (lines 126, 168, 253)** — a hung `claude -p` hangs the runner; only user Ctrl-C kills it. Left as-is because a reasonable default is hard to pick (contract cases legitimately take 3–6 min); open to a `--timeout` flag.
+> **No timeout on `Open3.capture2e` (lines 126, 168, 253).** A hung `claude -p` hangs the runner; only user Ctrl-C kills it. Left as-is because a reasonable default is hard to pick (contract cases legitimately take 3–6 min); open to a `--timeout` flag.
 
 Example of a long-form item that's worth the space because the decision is load-bearing:
 
@@ -106,39 +106,39 @@ Example of a long-form item that's worth the space because the decision is load-
 >
 > *Why I kept it:* smoke tests (N=2 and N=5 against nr-sec) never tripped it, and dropping the limit adds ~25–40 min of wall clock to a default 30-case × 5-run suite. Trading speed against a failure we haven't observed. If you can construct a query that reliably trips it, I'll drop the flag.
 
-**Length is determined by how much the reviewer needs to say yes or no.** Most items are one line. A few warrant the full "thing / why / what I did" unpacking. Either is fine. What's NOT fine: dense one-liners that hide a real tradeoff ("`--max-turns 1` trips sometimes, left it in") — those punt the analysis to the reviewer.
+**Length is determined by how much the reviewer needs to say yes or no.** Most items are one line. A few warrant the full "thing / why / what I did" unpacking. Either is fine. What's NOT fine: dense one-liners that hide a real tradeoff ("`--max-turns 1` trips sometimes, left it in"). Those punt the analysis to the reviewer.
 
-**Order by importance** — the item most likely to affect whether this PR lands correctly goes first. Don't order by file path or by the sequence in which concerns occurred to you.
+**Order by importance.** The item most likely to affect whether this PR lands correctly goes first. Don't order by file path or by the sequence in which concerns occurred to you.
 
 **If there's nothing, say that.** "Nothing comes to mind" is common, valid, and a stronger signal than three invented concerns. Part of the reviewer's value is finding what you missed; don't crowd them out by filling the section with placeholder worries.
 
 ### 5. What we've done to reduce risk
 
-Evidence, not reassurance. List the concrete checks, tests, or validations you ran, including tools the repo provides. Not "I tested it thoroughly" — *which* tests, *against what*, *with what result*.
+Evidence, not reassurance. List the concrete checks, tests, or validations you ran, including tools the repo provides. Not "I tested it thoroughly," but *which* tests, *against what*, *with what result*.
 
-This section is a record **for the author's benefit, shown to the reviewer**. Reviewers almost never run the listed commands themselves — they might not have the environment, credentials, or time, and their feedback can still be valuable without re-running anything. So the purpose of the checklist isn't "here's your to-do list" — it's "here's what I verified, and here's what I didn't."
+This section is a record **for the author's benefit, shown to the reviewer**. Reviewers almost never run the listed commands themselves. They might not have the environment, credentials, or time, and their feedback can still be valuable without re-running anything. So the purpose of the checklist isn't "here's your to-do list." It's "here's what I verified, and here's what I didn't."
 
 **Tick checkboxes honestly:**
 
-- `[x]` — I ran this against the code in **this** push and it passed. If the code has since changed, re-run before ticking.
-- `[ ]` — I haven't run this yet, OR it failed, OR I ran it against an earlier version and haven't re-verified.
+- `[x]`: I ran this against the code in **this** push and it passed. If the code has since changed, re-run before ticking.
+- `[ ]`: I haven't run this yet, OR it failed, OR I ran it against an earlier version and haven't re-verified.
 - Don't tick something just because you ran it last week. A tick against stale code is worse than an empty box.
-- If something can't be meaningfully tested (e.g. "exit handler fires on SIGTERM" and you can't trigger it locally), list it anyway with an empty box and a short note — the reviewer knows you thought about it and where the coverage gap is.
+- If something can't be meaningfully tested (e.g. "exit handler fires on SIGTERM" and you can't trigger it locally), list it anyway with an empty box and a short note. The reviewer knows you thought about it and where the coverage gap is.
 
 Format:
 
 ```markdown
 ## Test plan / risk reduction
 
-- [x] `/usr/bin/ruby -c tools/skill-evals/run-evals.rb` — syntax clean on 2.6.10 and 3.3.9
+- [x] `/usr/bin/ruby -c tools/skill-evals/run-evals.rb`: syntax clean on 2.6.10 and 3.3.9
 - [x] Smoke test: N=2 run against `nr-sec/skills/spec-security-assessment`, both cases exited 1 with the failures I expected
 - [x] Invalid flags (`--repeat 0`, `--min-pass-rate 2`, `--jobs -1`) exit 1 with clear `error:` messages
-- [ ] End-to-end N=5 run — not done locally (would cost ~30 min of API time); intentionally deferred
+- [ ] End-to-end N=5 run: not done locally (would cost ~30 min of API time); intentionally deferred
 ```
 
-Write each item as a **specific fact a reviewer can check against the diff**, not a task description. "Smoke tested" is worse than "N=2 run against `nr-sec/skills/spec-security-assessment`, both cases exited 1 with expected failures" — the second lets the reviewer see whether your claim matches what the code actually does.
+Write each item as a **specific fact a reviewer can check against the diff**, not a task description. "Smoke tested" is worse than "N=2 run against `nr-sec/skills/spec-security-assessment`, both cases exited 1 with expected failures." The second lets the reviewer see whether your claim matches what the code actually does.
 
-**On each push, re-check your ticks.** If you touched code that a ticked item covers, either re-run the check or untick the box. A PR-description checklist that drifts from reality faster than the code becomes actively harmful — the reviewer assumes ticked means verified, and silently-stale ticks erode that trust.
+**On each push, re-check your ticks.** If you touched code that a ticked item covers, either re-run the check or untick the box. A PR-description checklist that drifts from reality faster than the code becomes actively harmful: the reviewer assumes ticked means verified, and silently-stale ticks erode that trust.
 
 ## Length
 
@@ -190,6 +190,7 @@ Things that almost always ARE padding:
 - Unnumbered `-` bullets for pointers and concerns.
 - Inline-code (`` ` ``) for file paths, line numbers, flags, commands.
 - File references are Markdown links: `[path:line](<pr-diff-url>)`. The visible text is `path:line` (reviewers copy-paste that into editors); the link target is the PR diff URL (reviewers click to see the line highlighted in context). Never write bare `path:line` without a link.
+- **No em dashes**, in the body or in pointer and checklist annotations. Put a colon before the note. See the em-dash rule in [doc-writing-core](../references/doc-writing-core.md).
 - If the repo uses PR templates, check `.github/PULL_REQUEST_TEMPLATE.md` and extend rather than override.
 
 ## Process

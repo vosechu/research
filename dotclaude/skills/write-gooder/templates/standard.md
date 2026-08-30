@@ -1,6 +1,6 @@
 # Engineering Standard template
 
-An engineering standard exists to **codify a cross-team rule or practice so that architect-level arguments happen once, not every time a team starts a project**. When a PR reviewer or an architect points at a standard, the conversation ends — the rule is settled.
+An engineering standard exists to **codify a cross-team rule or practice so that architect-level arguments happen once, not every time a team starts a project**. When a PR reviewer or an architect points at a standard, the conversation ends, because the rule is settled.
 
 A standard is not a tutorial, a design doc, a blog post, or a "this is how our team does it" page. If it reads like opinion, it carries no weight. If it has no rationale, teams will request exceptions until there are more exceptions than adherers.
 
@@ -58,13 +58,13 @@ The summary table field is what someone sees before they click through. Make it 
 
 The first is checkable. The second is an opinion and invites eye-rolling.
 
-### Every rule has a Rationale — no exceptions
+### Every rule has a Rationale, no exceptions
 
 The single most common failure mode: a rule with no rationale. Teams read "Use protobuf for new services" without "because [specific reason]," and the rule reads as tribal preference. First time they have a reason not to, they won't.
 
 A rationale explains what the rule **prevents**, not what it **achieves**. "Prevents accidental API-surface divergence between services" is stronger than "Ensures consistency."
 
-If you can't write a rationale, the rule is not a standard — it's a preference. Kill the rule or go find the rationale.
+If you can't write a rationale, the rule is not a standard, it's a preference. Kill the rule or go find the rationale.
 
 ### MUST / SHOULD / MAY map to the level
 
@@ -137,6 +137,6 @@ Things that are worth the length when present:
 2. **Surface in `#architecture` before drafting.** An architect or existing standard steward may already have work in progress on the topic. Drafting blindly duplicates effort and fragments the standard's home.
 3. **Add each section to your task list.** Use TaskCreate with one task per rule. Drafting rule-by-rule with its Rationale forces the Rationale to exist; writing all rules first and "going back for rationales" never works.
 4. **Write the summary + level + group first.** These constrain every rule that follows. Without them, the rules can drift in scope.
-5. **For each rule, write the Rationale before the Details.** The Rationale disciplines the rule — if you can't say why, you're not ready to write what.
+5. **For each rule, write the Rationale before the Details.** The Rationale disciplines the rule: if you can't say why, you're not ready to write what.
 6. **Check: can every rule be exception-requested meaningfully?** A rule without a clear bar for exception ("pre-existing code," "vendor constraint," "FedRAMP override") invites endless handwaving. The Rationale tells a reader what a good exception argument looks like.
 7. **Pass to a steward for review before putting it in STAN.** Standards without stewardship sign-off don't carry the weight that makes them useful.

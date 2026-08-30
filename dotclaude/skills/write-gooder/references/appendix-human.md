@@ -1,4 +1,4 @@
-# Appendix — human-only mechanics
+# Appendix: human-only mechanics
 
 Extends [doc-writing-core.md](doc-writing-core.md) for docs a human reads. Sub-type specifics (PR, CDD, README, release notes, commit messages) are Phase 5.
 
@@ -6,9 +6,9 @@ Extends [doc-writing-core.md](doc-writing-core.md) for docs a human reads. Sub-t
 
 Rules tagged by category for downstream skill-authors:
 
-- **[C] Comprehension** — human-specific comprehension mechanics (F-pattern, reading age, linkability).
-- **[E] Ethics/accountability** — human agency, AI attribution, when to use AI.
-- **[A] Authoring** — review process, internal-docs hygiene.
+- **[C] Comprehension:** human-specific comprehension mechanics (F-pattern, reading age, linkability).
+- **[E] Ethics/accountability:** human agency, AI attribution, when to use AI.
+- **[A] Authoring:** review process, internal-docs hygiene.
 
 ---
 
@@ -18,10 +18,10 @@ AI didn't do it. You did it, using AI. Keep the grammatical subject human (Larso
 
 - "I made an error using Claude," not "Claude made an error." **[E]**
 - "I didn't review the output," not "ChatGPT messed up." **[E]**
-- **Don't let LLMs speak in your voice.** Before publishing AI-drafted text, re-read every sentence and ask: *would I actually say this? do I actually believe this argument?* Only the author-knows-their-own-mind test catches invented rationales — there's no mechanical substitute. If you didn't form the reasoning, cut the sentence. **[E]**
+- **Don't let LLMs speak in your voice.** Before publishing AI-drafted text, re-read every sentence and ask: *would I actually say this? do I actually believe this argument?* Only the author-knows-their-own-mind test catches invented rationales; there's no mechanical substitute. If you didn't form the reasoning, cut the sentence. **[E]**
 - **Don't waste other people's time if you can't be bothered to read it yourself.** On a PR, CDD, or other review artifact, put an unticked "I, the human author, have read this end-to-end and stand behind it" checkbox at the top, and only tick it once you have. This protects reviewers from AI-generated output dumped without author-review. Drop the checkbox later if the AI-drafted-and-unread problem goes away; for now, it's load-bearing. **[E]**
-- **Surface concerns and open questions.** If you're uncertain about a scope call, a trade-off, or whether a rule covers all cases, name it in a `## Concerns` or `## Open questions` section. Unsaid concerns become reviewer ambushes — the reviewer raises the question you already knew about, and the conversation takes a round-trip it didn't need. **[E]**
-- **Mark test plans accurately.** Enumerate what should be tested, not just what was. Tick what you verified; leave unticked what you didn't, and note why. Omitting what wasn't done is worse than marking it unticked — the unticked box is a signal; the omitted test is a trap. **[E]**
+- **Surface concerns and open questions.** If you're uncertain about a scope call, a trade-off, or whether a rule covers all cases, name it in a `## Concerns` or `## Open questions` section. Unsaid concerns become reviewer ambushes: the reviewer raises the question you already knew about, and the conversation takes a round-trip it didn't need. **[E]**
+- **Mark test plans accurately.** Enumerate what should be tested, not just what was. Tick what you verified; leave unticked what you didn't, and note why. Omitting what wasn't done is worse than marking it unticked: the unticked box is a signal, the omitted test is a trap. **[E]**
 
 ### When to use AI for prose
 
@@ -40,26 +40,26 @@ Humans scan in an F-pattern and read 20–28% of a page (Nielsen).
 - **Write for a 9-year-old reading age** using common vocabulary (GOV.UK). Many readers work in English as a second or third language; plain English is faster for everyone. **[C]**
 - **Page titles ≤ 65 characters.** Google truncates at 65 in search results. **[C]**
 - **Meta descriptions ≤ 160 characters.** Google truncates at 160. **[C]**
-- **Avoid block caps** — 13–18% harder to read than mixed case, and reads as shouting. **[C]**
+- **Avoid block caps.** 13–18% harder to read than mixed case, and reads as shouting. **[C]**
 - **"and" not "&"** in body text. Ampersands trip lower-literacy readers. **[C]**
 - **No footnotes.** Print-era hack; put important content inline. **[C]**
-- **No FAQs.** If a question gets asked often, the main doc isn't answering it — fix the main doc instead of growing a parallel one that drifts out of sync. **[C] [A]**
+- **No FAQs.** If a question gets asked often, the main doc isn't answering it, so fix the main doc instead of growing a parallel one that drifts out of sync. **[C] [A]**
 
 ---
 
 ## Concise without curt
 
-Every doc this appendix governs is read by a person. Concise is the job; curt is a failure of it — and the two are easy to confuse. The terseness rules in [doc-writing-core](doc-writing-core.md) (start with verbs, drop hedges, cut by half) were written for sentences that **describe a system**. Applied to sentences that **address the reader**, they turn into orders. Watch which one you're writing. **[C]**
+Every doc this appendix governs is read by a person. Concise is the job; curt is a failure of it, and the two are easy to confuse. The terseness rules in [doc-writing-core](doc-writing-core.md) (start with verbs, drop hedges, cut by half) were written for sentences that **describe a system**. Applied to sentences that **address the reader**, they turn into orders. Watch which one you're writing. **[C]**
 
 - **Describe the situation; don't command the reader.** State the fact and let them act on it. "Easy to mix up: X isn't Y" beats "Don't confuse X and Y"; "if a ticket names a Setup, it's ours" beats "Recognize the terms and route." Imperatives are right for procedure ("Run the migration"); they read as bossy when they govern what the reader should *know* or *believe*. **[C]**
-- **A softener is not a hedge.** Hedges blur a claim — "essentially," "fairly," "more or less" — so cut them. Softeners frame a request for a human — "if you hit this," "worth a look," "when you get a chance" — and keep an instruction from sounding like a bark. Cutting every softener is how concise goes cold. **[C]**
+- **A softener is not a hedge.** Hedges blur a claim ("essentially," "fairly," "more or less"), so cut them. Softeners frame a request for a human ("if you hit this," "worth a look," "when you get a chance") and keep an instruction from sounding like a bark. Cutting every softener is how concise goes cold. **[C]**
 - **Reread reader-facing lines as the recipient.** The author hears efficiency; the recipient hears tone. Read each line as if it were sent to *you* on a busy day; if it lands as terse or superior, restate it as a fact or spend the three or four words that keep it human. **[A]**
 
 ---
 
 ## Tone and vocabulary
 
-- **Conversational, not chummy.** Google's "knowledgeable friend" test: natural, more polished than speech, no slang. Write like you'd explain it to a competent colleague — "here's how to spot it" — not a manual barking steps, not a buddy oversharing. **[C]**
+- **Conversational, not chummy.** Google's "knowledgeable friend" test: natural, more polished than speech, no slang. Write like you'd explain it to a competent colleague ("here's how to spot it"), not a manual barking steps, not a buddy oversharing. **[C]**
 - **Contractions** for warmth. **[C]**
 - **Second-person "you"** for directness. Naming the reader creates connection and forces you to specify the action. **[C]**
 - **Explain technical terms on first use.** Don't assume everyone knows what you do (GOV.UK). **[C]**
