@@ -39,6 +39,8 @@ class SharedLinkTest < Minitest::Test
       assert File.symlink?(File.join(home, 'agents', 'game-programmer.md'))
       assert File.symlink?(File.join(home, 'rules', 'testing.md'))
       assert File.symlink?(File.join(home, 'hooks', 'learning-opportunities-commit-nudge.sh'))
+      assert File.symlink?(File.join(home, 'hooks', 'gh-stack-steer.sh'))
+      assert File.symlink?(File.join(home, 'hooks', 'write-gooder-pr-body.sh'))
     end
   end
 
