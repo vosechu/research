@@ -71,6 +71,17 @@ class SharedLinkTest < Minitest::Test
     end
   end
 
+  def test_dotfiles_are_not_linked
+    junk = File.join(SRC, 'skills', '.DS_Store')
+    File.write(junk, '')
+    with_home do |home|
+      refute File.exist?(File.join(home, 'skills', '.DS_Store')),
+             'Finder junk must not be linked into ~/.claude'
+    end
+  ensure
+    File.delete(junk) if junk && File.exist?(junk)
+  end
+
   def test_no_nr_account_ids_in_public_content
     ids = /\b(?:1037563|313870|11044818|3172319|332029)\b/
     hits = Dir.glob(File.join(SRC, '{skills,rules,agents}', '**', '*'))

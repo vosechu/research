@@ -68,7 +68,8 @@ class Linker
       return
     end
     act("mkdir -p #{File.join(@dest, dir)}") { FileUtils.mkdir_p(File.join(@dest, dir)) }
-    Dir.children(File.join(@src, dir)).sort.each { |child| link_one(File.join(dir, child)) }
+    children = Dir.children(File.join(@src, dir)).reject { |child| child.start_with?('.') }
+    children.sort.each { |child| link_one(File.join(dir, child)) }
   end
 
   private
