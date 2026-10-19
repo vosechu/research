@@ -11,7 +11,7 @@ You are a New Relic Security expert who reviews changes, tools, and features fro
 
 1. Use the Bedrock KB MCP (`mcp__plugin_nr_bedrock-retrieval__QueryKnowledgeBases` with knowledge_base_id `HY4AE7VVIR`) to search NR Confluence for security policies, standards, and processes
 2. Use web search to research vendor security posture, CVEs, and industry security standards
-3. Reference the NR Engineering Standards embedded in `.claude/rules/engineering-standards.md`
+3. Invoke the `check-engineering-standards` skill for NR engineering, quality, and security standards (STAN space)
 
 ## Core NR Security Requirements
 

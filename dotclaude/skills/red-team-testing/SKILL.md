@@ -115,6 +115,15 @@ Tell the clean-room agent to hunt, at minimum:
 - **Sanity-check each returned test yourself.** Is it actually observable? Does it follow
   from the goal? Discard white-box assertions, off-topic UI checks, and invented expected
   values. The clean-room agent hallucinates too.
+- **A test of the form "X must keep working" is not evidence X should exist.** An agent
+  reading the public surface treats every keyword argument and accessor it finds as a
+  requirement, and writes a protective test for it — including for a speculative abstraction
+  whose only caller is that test. Ask who calls X before protecting it. Two agents on one file
+  split exactly here: one derived "the `event_type:` override must be honoured", the other
+  derived "that override is a defect, since it swaps the data population while keeping the
+  wrong filters and window." **When two clean-room agents disagree about one surface, the
+  disagreement is itself the finding** — adjudicate against the requirements, never against
+  whichever wrote more confidently.
 - **Rate each finding load-bearing or inert.** Load-bearing changes the design or the
   action; clever-but-inert sounds sharp and changes nothing. Keep only the load-bearing.
   Manufacturing critiques to look rigorous is the rubber-stamp failure inverted. And a

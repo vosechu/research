@@ -25,7 +25,20 @@ When writing tests, follow this expanded red-green-refactor cycle to confirm bot
 3. **Add code** — Write the minimum code to make the test pass
 4. **Green** — Run the test, confirm it passes
 5. **Remove code** — Delete the code you just wrote
-6. **Red** — Run the test, confirm it fails again (this proves the test catches regressions). Try to make _exactly_ one test fail (this proves that you've really disabled the exact code and not something big and fundamental that makes _all_ tests fail)
+6. **Red** — Run the test, confirm it fails again (this proves the test catches regressions). Try to make _exactly_ one test fail (this proves that you've really disabled the exact code and not something big and fundamental that makes _all_ tests fail). **If the test survives, you picked the wrong mutation — that is not evidence the test is bad.** Ask what invariant it actually pins and break that instead. A test asserting per-column lookup survived a mutation to header derivation; only replacing `cols.map { |c| row[c] }` with `row.values` killed it. Do not drop the marker and do not keep it unearned — find the mutation that lands.
+
+    There is a third case, and it is not "wrong mutation" or "bad test": **the runtime may be unable
+    to express the fault.** Removing the `Mutex` from a counter incremented by 8 threads left a
+    CRuby suite green at 400,000 unguarded increments, because the GVL makes that read-modify-write
+    effectively atomic — no test on that interpreter can observe the lost increment. Same for an
+    output race tested through `StringIO`, which is pure memory and never releases the GVL. When
+    escalating the mutation's severity stops changing the result, stop hunting: keep the lock (it is
+    load-bearing on JRuby and TruffleRuby, and on real IO), rename the test to what it does pin,
+    and say in a comment that removing the guard leaves it green. Do **not** delete the guard
+    because no test catches its absence, and do **not** give such a test an AI-DEV marker — the
+    marker means bite demonstrated. Prefer a mutation that removes a guard (clean, specific failure)
+    over one that makes code block (deadlocks or hangs the suite, which reads like the mutation not
+    taking).
 7. **Re-add code** — Put the code back
 8. **Green** — Run the test, confirm it passes again
 9. **Refactor** — Clean up the code while keeping the test green
@@ -84,6 +97,7 @@ After generating tests, re-read the entire test file and check each test against
 1. **Do the test names still match the assertions?** LLMs refactor tests and forget to update names.
 2. **Are any tests trivially passing?** Look for tests that assert on mock return values, test that `true === true`, or only verify that setup ran (e.g., asserting a mock was called without checking the result of the call). (Mutation testing tools catch this automatically — if you have one set up, run it instead of eyeballing.)
 3. **Are any tests duplicates in disguise?** Different names, same assertions, same code path exercised.
-4. **Did coverage actually improve?** Run the coverage report before and after. If it didn't move, the tests aren't testing real code paths.
-5. **Are the tests testing the code or the mocks?** A test that mocks everything and asserts the mock was called is testing your test setup, not your code.
-6. **Does each test assert behavior someone chose, or behavior you inherited?** When moving or extracting code, "preserve existing behavior" is right for semantics that were decided and wrong for ones that were never deliberate. Pinning an incidental case with a test promotes an accident to a contract, and the later fix then arrives looking like a regression. If you notice questionable behavior while extracting, fix it or leave it unasserted. Do not characterize it. (Real case: an empty-input path returned `""` because `[].join(',')` does; it got moved verbatim *and* asserted, and a reviewer had to find it.)
+4. **Does any test compare two parallel structures by size instead of by position?** `A.length == B.length` passes when you swap two entries in one of them, and a swap is the likelier bug than a length change. Real case: an NRQL facet list and the row keys it maps onto positionally were pinned only by equal length, so reordering them turned every account id into a namespace string with the suite still green. Assert element-by-element, or at minimum pin the entry whose position carries meaning.
+5. **Did coverage actually improve?** Run the coverage report before and after. If it didn't move, the tests aren't testing real code paths.
+6. **Are the tests testing the code or the mocks?** A test that mocks everything and asserts the mock was called is testing your test setup, not your code.
+7. **Does each test assert behavior someone chose, or behavior you inherited?** When moving or extracting code, "preserve existing behavior" is right for semantics that were decided and wrong for ones that were never deliberate. Pinning an incidental case with a test promotes an accident to a contract, and the later fix then arrives looking like a regression. If you notice questionable behavior while extracting, fix it or leave it unasserted. Do not characterize it. (Real case: an empty-input path returned `""` because `[].join(',')` does; it got moved verbatim *and* asserted, and a reviewer had to find it.)

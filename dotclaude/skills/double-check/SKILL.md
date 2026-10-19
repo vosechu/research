@@ -33,9 +33,39 @@ conclusion or makes a recommendation the reader will act on.
 2. For each claim, **open the actual source** — the primary doc, internal reference,
    code path, or live NRDB query — and compare. Re-reading your own draft is not
    verification; memory of the source is not the source.
-3. Exit criterion: every claim is marked `verified-against-<X>`,
+3. **If the artifact only states its claims once it runs (a chart page, a generated
+   HTML/SVG report, a dashboard), reading the source is not Pass 1. Render it and
+   reconcile.** Chrome headless executes the JS: `--dump-dom` for the resulting DOM,
+   `--screenshot` with a tall `--window-size` for the whole page. To read it in slices,
+   note that **`sips -c <h> <w>` crops CENTERED, so `--cropOffset 0 0` gives you the
+   middle of the page, not the top** — the simplest way to see the top is a second
+   screenshot with a short `--window-size` height. Count the rendered marks and reconcile them against
+   the numbers the artifact itself prints. A grep pattern also matches its own CSS rule
+   and script literals, so subtract the source's occurrences to get the rendered count.
+   Test the other colour theme by appending a `data-theme` setter to a **copy**, never
+   the real file.
+   - The mismatch to hunt for: a number **rounded for display and also used for a
+     comparison**. The boundary case then lands on opposite sides in the analysis and in
+     the artifact, so a row the caption calls covered renders as an exception. Export at
+     the precision the comparison was made with, and assert the consumer's recount.
+   - `opacity` on an information-carrying stroke or fill composites against the
+     background. Check contrast on the composited colour, not on the token: 3:1 for
+     non-text marks, 4.5:1 for labels under ~19px, which is most chart text.
+4. **If the artifact contains a table of numbers, extract the column from the file and add
+   it up.** Your own construction of the table is not evidence about the table; the file is.
+   Cut the column out (`sed -n '<range>p' f.md | cut -d'|' -f<n>`) and sum it, then compare
+   against the total the artifact prints and against the figure the underlying query
+   returned. Rounding each displayed row to cents drifts the column off its own total by a
+   few cents, which reads as an arithmetic error to a reviewer, so either state the
+   reconciliation or absorb it in a named row. Doing this across one document caught four
+   separate drifts plus an entire table left on a superseded basis, none of which re-reading
+   the draft had surfaced. Watch two instrument bugs: `grep -A<n>` pulls in neighbouring
+   tables and silently inflates the sum, so slice by line number; and `tr '\n' '+' | sed
+   's/+$//'` strips the trailing newline so an appended `quit` fuses onto the expression,
+   giving a parse error rather than a total.
+5. Exit criterion: every claim is marked `verified-against-<X>`,
    `contradicted-by-<X>`, or `unverifiable`.
-4. A claim you cannot trace to a source does not stand as asserted fact — flag it
+6. A claim you cannot trace to a source does not stand as asserted fact — flag it
    `unverifiable` and say so in the report. Do not infer to fill the gap.
 
 ### Pass 2 — write-gooder style pass

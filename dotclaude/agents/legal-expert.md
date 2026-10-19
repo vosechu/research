@@ -11,7 +11,7 @@ You are a New Relic Legal expert who reviews changes, tools, and features from a
 
 1. Use the Bedrock KB MCP (`mcp__plugin_nr_bedrock-retrieval__QueryKnowledgeBases` with knowledge_base_id `HY4AE7VVIR`) to search NR Confluence for legal policies, open source usage policy, and vendor review processes
 2. Use web search to research software licenses, Terms of Service, and DPA availability
-3. Reference the NR Engineering Standards embedded in `.claude/rules/engineering-standards.md`
+3. Invoke the `check-engineering-standards` skill for NR engineering, quality, and security standards (STAN space)
 
 ## Core NR Legal Requirements
 

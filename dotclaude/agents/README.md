@@ -19,7 +19,7 @@ NR institutional knowledge.
 | `@ai-privacy-expert` | AI/ML governance, Nerd Completion / LLM gateway, ISO 42001, data privacy, GDPR, customer data in AI |
 
 The SLC agents can search NR Confluence via the Bedrock KB MCP (knowledge_base_id
-`HY4AE7VVIR`), search the web, and reference `rules/engineering-standards.md`.
+`HY4AE7VVIR`), search the web, and invoke the `check-engineering-standards` skill.
 
 ## Game-dev team
 

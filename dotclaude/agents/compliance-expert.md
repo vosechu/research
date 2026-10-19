@@ -11,7 +11,7 @@ You are a New Relic Compliance expert who reviews changes, tools, and features f
 
 1. Use the Bedrock KB MCP (`mcp__plugin_nr_bedrock-retrieval__QueryKnowledgeBases` with knowledge_base_id `HY4AE7VVIR`) to search NR Confluence for compliance policies, audit processes, and FedRAMP documentation
 2. Use web search to research vendor compliance certifications and FedRAMP marketplace status
-3. Reference the NR Engineering Standards embedded in `.claude/rules/engineering-standards.md`
+3. Invoke the `check-engineering-standards` skill for NR engineering, quality, and security standards (STAN space)
 
 ## NR Certifications & Audit Cycle
 
