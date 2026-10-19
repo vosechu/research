@@ -1,8 +1,10 @@
 {
+  "autoUpdatesChannel": "latest",
   "env": {
     "ENABLE_PROMPT_CACHING_1H": "1",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
-    "CLAUDE_CODE_SCROLL_SPEED": "2"
+    "CLAUDE_CODE_SCROLL_SPEED": "4",
+    "CLAUDE_CODE_ENABLE_TODO_TOOLS": "1"
   },
   "permissions": {
     "allow": [
@@ -40,21 +42,37 @@
       "Bash(npm install:*)",
       "Bash(npm audit:*)",
       "Bash(npm ls:*)",
-      "Bash(ASDF_NODEJS_VERSION=*npm run:*)",
-      "Bash(ASDF_NODEJS_VERSION=*npm test:*)",
-      "Bash(ASDF_NODEJS_VERSION=*npm install:*)",
-      "Bash(ASDF_NODEJS_VERSION=*npm audit:*)",
-      "Bash(ASDF_NODEJS_VERSION=*npm ls:*)",
+      "Bash(ASDF_NODEJS_VERSION=*npm run*)",
+      "Bash(ASDF_NODEJS_VERSION=*npm test*)",
+      "Bash(ASDF_NODEJS_VERSION=*npm install*)",
+      "Bash(ASDF_NODEJS_VERSION=*npm audit*)",
+      "Bash(ASDF_NODEJS_VERSION=*npm ls*)",
       "Skill(update-config)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:www.npmjs.com)",
-      "WebFetch(domain:trino.io)"
+      "WebFetch(domain:trino.io)",
+      "WebFetch(domain:www.datadoghq.com)",
+      "WebFetch(domain:docs.datadoghq.com)",
+      "WebFetch(domain:registry.terraform.io)",
+      "WebFetch(domain:www.google.com)",
+      "WebFetch(domain:stackoverflow.com)",
+      "Bash(pandoc:*)",
+      "Bash(links -dump:*)",
+      "Bash(unzip:*)",
+      "Bash(python3:*)",
+      "Bash(xargs ls:*)",
+      "Bash(gem search:*)",
+      "Bash(gem info:*)",
+      "Bash(terraform refresh)",
+      "Bash(printenv)"
     ],
     "deny": [
       "Bash(claude mcp *)",
       "Bash(spr:*)",
       "Bash(git spr:*)",
-      "Bash(*git spr *)"
+      "Bash(*git spr *)",
+      "mcp__plugin_nr_google-search__web_fetch",
+      "mcp__plugin_nr_google-search__raw_http_fetch"
     ],
     "defaultMode": "auto"
   },
@@ -96,14 +114,36 @@
           }
         ]
       }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/chuck/research/dotclaude/hooks/ntfy-push.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/chuck/research/dotclaude/hooks/cancel-ntfy-pending.sh",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {
-    "slack@claude-plugins-official": true,
+    "slack@claude-plugins-official": false,
     "superpowers@claude-plugins-official": true,
     "github@claude-plugins-official": true,
     "ruby-lsp@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": true,
     "learning-opportunities@learning-opportunities": true,
     "learning-opportunities-auto@learning-opportunities": true,
@@ -124,9 +164,10 @@
       }
     }
   },
+  "autoCompactWindow": 400000,
   "skipWebFetchPreflight": true,
   "alwaysThinkingEnabled": true,
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "skipWorkflowUsageWarning": true,
   "theme": "light",
   "skipAutoPermissionPrompt": true
