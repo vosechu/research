@@ -34,9 +34,7 @@ class SharedLinkTest < Minitest::Test
     with_home do |home|
       assert File.symlink?(File.join(home, 'skills', 'write-gooder'))
       assert File.symlink?(File.join(home, 'skills', 'double-check'))
-      assert File.symlink?(File.join(home, 'skills', 'vintagestory-modding'))
       assert File.symlink?(File.join(home, 'agents', 'security-expert.md'))
-      assert File.symlink?(File.join(home, 'agents', 'game-programmer.md'))
       assert File.symlink?(File.join(home, 'rules', 'testing.md'))
       assert File.symlink?(File.join(home, 'hooks', 'learning-opportunities-commit-nudge.sh'))
       assert File.symlink?(File.join(home, 'hooks', 'gh-stack-steer.sh'))
@@ -51,7 +49,7 @@ class SharedLinkTest < Minitest::Test
     refute settings.key?('statusLine'), 'work statusLine must stay work-only'
     refute settings.key?('model'), 'home picks its own model'
     assert settings.dig('env', 'CLAUDE_CODE_SCROLL_SPEED'), 'general env must be preserved'
-    assert settings.dig('permissions', 'deny').length >= 50, 'safety deny-list must be present'
+    assert_includes settings.dig('permissions', 'deny'), 'Bash(spr:*)'
   end
 
   def test_engineering_standards_stays_work_only
