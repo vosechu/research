@@ -27,6 +27,7 @@ Silently is the load-bearing word. If deleting the comment causes a loud, immedi
 - **Provenance.** "Copied from the deploy config," "from the secret store," "per the design doc." Where it came from is not why it is there.
 - **Restatement.** `## Creates the bucket, then exits` above a line that already says `mc mb`.
 - **In-process notes.** "This used to be X before we hit Y," "as discussed," a bare ticket number standing in for a reason.
+- **Measurement logs.** "Measured on 2026-10-23 with tool 2.1.308, a bare call returns a login" is a lab-notebook entry. Put the dated observation in the commit, PR, or research doc; the comment keeps only the constraint a future edit could break.
 - **Section labels.** `# --- env vars ---` over a block of environment variables.
 
 ## When you don't know why

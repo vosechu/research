@@ -1,6 +1,6 @@
 ---
 name: write-gooder
-description: Use when drafting a PR description (or `gh pr create` body), a Change Design Document / CDD / design doc, an Initiative Design Doc / IDD, a repo README, a runbook, an engineering standard, a CLAUDE.md file, or a SKILL.md, and when writing, reviewing, or pruning code comments in any language, including deciding whether a comment should exist at all.
+description: Use when drafting a PR description (or `gh pr create` body), a Change Design Document / CDD / design doc, an Initiative Design Doc / IDD, a repo README, a runbook, an engineering standard, a CLAUDE.md file, or a SKILL.md. Also use BEFORE any Edit or Write that adds or changes a comment, docstring, or explanatory note beside code or config (any language, JSON/YAML/Terraform/shell included), and when reviewing or pruning comments. Fires even when the comment is incidental to a larger code change, and especially for notes recording when, with which tool version, or how something was observed or measured.
 ---
 
 # Write Gooder
