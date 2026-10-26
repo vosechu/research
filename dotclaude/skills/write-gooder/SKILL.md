@@ -31,9 +31,11 @@ If the user's request doesn't match one of these, fall back to `references/doc-w
 
 **Also read `references/global-audience.md` for any human-read artifact whose readers include non-native English speakers.** At a company with engineers on several continents that is the common case, not the exception, so default to reading it and skip it only when you know the audience is narrow (a note to one person, a doc for one colocated team). It's a third axis rather than a fourth audience: it stacks on top of whichever appendix the template picked. Skip it for `code-comments.md` and for the two LLM-audience templates unless a human reads the artifact too, which for a CLAUDE.md usually means yes.
 
+**Also read `references/audience-by-role.md` when you know the reader's role (executive, director or manager, engineer) or when the message asks people to take on work.** It's a fourth axis that stacks on any template: the same facts lead differently for each role, and an ask to engineers needs a story, a named person who is helped, and a specific first step, not a list of benefits.
+
 **Out of scope, so defer to another skill or handle ad-hoc:**
 - **DACI documents.** Use `nr:daci-knowledge-skill` for NR's DACI framework guidance. The canonical DACI template is tight already; a write-gooder override adds little.
-- **Slack messages.** Register varies too much; use `slack:slack-messaging` for Slack-specific composition guidance.
+- **Slack messages.** Register varies too much; use `slack:slack-messaging` for Slack-specific composition guidance. For an ask or pitch in any medium, read `references/audience-by-role.md`.
 - **Blog posts, wiki articles, release notes, emails.** Register and voice vary too much to template usefully. Fall back to `references/doc-writing-core.md` + `references/appendix-human.md`.
 
 ## What's in each reference
@@ -41,6 +43,7 @@ If the user's request doesn't match one of these, fall back to `references/doc-w
 - **`references/doc-writing-core.md`:** prose craft and comprehension rules that apply to any reader. Front-load the point, cut by half, active voice, short sentences, no hedging/puff/filler, specificity over abstraction.
 - **`references/appendix-llm.md`:** LLM-only mechanics. CLAUDE.md discovery, path-gated rules, the description-as-trigger for skills, three-level progressive disclosure, hooks, memory. Read this when the reader is a model.
 - **`references/global-audience.md`:** writing for readers whose first language isn't English. Put helper words and relative pronouns back, one term per concept, no idiom or culture-specific reference, conditional clause first. Read it alongside an appendix, not instead of one. It's the one file that tells you to add words rather than cut them, and it explains where that stops.
+- **`references/audience-by-role.md`:** what an executive, a director or manager, and an engineer each need first, plus the parts of an ask that inspires engineers to take on work (story of self, us, and now; a named person who is helped; what they own; a specific first step). Read it alongside an appendix, not instead of one.
 - **`references/appendix-human.md`:** human-only mechanics. F-pattern scanning, 9-year-old reading age, "must" vs "need to," accountability (human-grammatical-subject rule, AI-attribution policy, read-through checkbox). Read this when the reader is a human.
 - **`references/sources.md`:** annotated bibliography behind the rules. Load this **only when revising the skill**, not when authoring a document.
 
