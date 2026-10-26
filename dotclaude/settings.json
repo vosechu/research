@@ -35,6 +35,9 @@
       "Bash(grep:*)",
       "Bash(find:*)",
       "Bash(jq:*)",
+      "Bash(awk 'NR*)",
+      "Bash(awk '{print $*)",
+      "Bash(awk -F* '{print $*)",
       "Bash(curl:*)",
       "Bash(mkdir:*)",
       "Bash(npm run:*)",
@@ -71,6 +74,23 @@
       "Bash(spr:*)",
       "Bash(git spr:*)",
       "Bash(*git spr *)",
+      "Bash(sed -i*)",
+      "Bash(sed * -i*)",
+      "Bash(sed -Ei*)",
+      "Bash(sed -ri*)",
+      "Bash(sed -ni*)",
+      "Bash(sed --in-place*)",
+      "Bash(sed * --in-place*)",
+      "Bash(perl -*)",
+      "Bash(awk *print*>*)",
+      "Bash(awk *print*|*)",
+      "Bash(awk *system(*)",
+      "Bash(awk *getline*)",
+      "Bash(awk -f*)",
+      "Bash(awk * -f*)",
+      "Bash(awk *--file*)",
+      "Bash(awk -i*)",
+      "Bash(awk * -i*)",
       "mcp__plugin_nr_google-search__web_fetch",
       "mcp__plugin_nr_google-search__raw_http_fetch"
     ],
@@ -85,21 +105,6 @@
             "command": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git fetch --all --prune >/dev/null 2>&1 || true",
             "timeout": 30,
             "statusMessage": "Fetching latest git refs"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$HOME/.claude/hooks/gh-stack-steer.sh\""
-          },
-          {
-            "type": "command",
-            "command": "\"$HOME/.claude/hooks/write-gooder-pr-body.sh\""
           }
         ]
       }
@@ -144,9 +149,8 @@
     "github@claude-plugins-official": true,
     "ruby-lsp@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": false,
-    "frontend-design@claude-plugins-official": true,
     "learning-opportunities@learning-opportunities": true,
-    "learning-opportunities-auto@learning-opportunities": true,
+    "learning-opportunities-auto@learning-opportunities": false,
     "orient@learning-opportunities": true,
     "learning-goal@learning-goal": true
   },
@@ -169,6 +173,7 @@
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "skipWorkflowUsageWarning": true,
-  "theme": "light",
+  "theme": "auto",
+  "editorMode": "normal",
   "skipAutoPermissionPrompt": true
 }
