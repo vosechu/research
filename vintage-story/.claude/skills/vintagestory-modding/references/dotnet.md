@@ -31,6 +31,25 @@ authoritative C#/.NET answers.
   host even if it compiles. `AllowUnsafeBlocks` is sometimes needed for perf/interop code.
 - Assets are copied to output via `<Content Include="assets\**" CopyToOutputDirectory="PreserveNewest">`.
 
+## VS Code setup (code navigation)
+
+Mod repos often gitignore the `.sln`, so a fresh clone gives you no symbols, no
+go-to-definition, and no Solution Explorer until you make one:
+
+```bash
+code --install-extension ms-dotnettools.csdevkit    # pulls in the C# extension too
+dotnet new sln -n <modname> && dotnet sln add <ModDir>/<ModDir>.csproj
+VINTAGE_STORY="/Applications/Vintage Story.app" code .   # env var must be set, or restore fails
+```
+
+Launch the editor from a shell where `$VINTAGE_STORY` is exported — without it the project
+can't restore the game DLL references and symbol resolution comes up half-broken.
+
+Then: `Cmd/Ctrl+Shift+O` = symbols in the current file, `Cmd/Ctrl+T` = symbols across the
+workspace, and the **Outline** view in the Explorer sidebar for a persistent method list.
+**Solution Explorer** (the C# Dev Kit panel showing solution → projects → dependencies →
+per-file classes and methods) only appears once a `.sln` exists.
+
 ## Per-tick loop & threading
 
 - Tick code (entity/block updates) runs many times per second — **treat allocation as the enemy**

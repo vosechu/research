@@ -173,6 +173,21 @@ decompile and confirm `TickEntities` is still a serial `foreach`.
   compiler error and no exception. `WalkBlocks(min, max, …)` handles Y for you; hand-rolled chunk
   enumeration does not. (This bit a real container-index scan: it found only chests near
   village-center height until the `cy` loop was added.)
+- **⚠ `SetBlock` is inert to neighbour-reactive block logic — a connecting block placed in code stays
+  in the exact variant you named, never the connected shape.** Connecting blocks (fences, walls,
+  fence gates, chiseled rails, wires/pipes, path blocks) pick their visible+collision variant from
+  their neighbours: player placement runs `TryPlaceBlock`/`OnBlockPlaced` and later edits run
+  `OnNeighbourBlockChange`, and both recompute a `type` variant from the adjacent blocks (e.g.
+  `BlockFence.GetOrientations` builds `"nsew"` from the sides that connect, then swaps to
+  `…fence-<orientations>`). A raw `world.BlockAccessor.SetBlock(id, pos)` fires **none** of that, so a
+  `woodenfence-…-ns-free` post stays a lone post — leaving ~0.6-block gaps a 0.5-wide entity walks
+  straight through, with no error. To force the recompute, call `IBlockAccessor.TriggerNeighbourBlockUpdate(pos)`
+  after placing. ⚠ It updates the **six neighbours** of `pos`, not `pos` itself (server-side it just
+  enqueues `pos`; the block-simulation tick then runs `OnNeighbourBlockChange` on each of the six
+  adjacent blocks). So to connect a *run* of blocks, **place them all first, then trigger each cell** —
+  every block gets recomputed by the trigger fired on its neighbour. (Verified VS 1.22 against
+  `BlockFence` + `ServerSystemBlockSimulation`; a mod used exactly this to build animal-tight fence pens
+  from code.)
 
 ## Assets & JSON patching
 

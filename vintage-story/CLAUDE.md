@@ -5,7 +5,7 @@ For any operation against chuck's Host Havoc VS server, invoke the **`vs-server`
 ## Server facts
 
 - Runs **Vintage Story 1.22.x** — check mod compatibility against this before recommending or deploying anything.
-- **Live-server writes (mod deploys, config pushes) are hook-blocked**, even in auto mode. Claude cannot push to live; surface the exact command and have chuck run it himself with the `!` prefix. Details in the skill.
+- **Live-server writes (mod deploys, config pushes) are policy-gated, not blocked.** The old `PreToolUse` guard was removed 2026-07-05 (`.claude/hooks/vs-guard.rb` is gone — verified 2026-08-08). Claude *can* push to live; the rule is announce the exact command and show the plan first, back up before deploys, and get explicit OK before a restart that would bounce players. Tiers in the skill.
 
 ## Folder roles
 

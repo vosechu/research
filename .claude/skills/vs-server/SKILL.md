@@ -60,7 +60,7 @@ scripts/sftp.rb get Playerdata/playersbanned.json configs/playersbanned.json
 
 `deploy.rb` mirrors a **staged** mods folder (`STAGED_MODS`, `vintage-story/staged-mods/`, gitignored) up to the server's `Mods/`. `STAGED_MODS` is the source of truth for deploys — **not** the live game client's own mods folder (`LOCAL_MODS`, rustique's install target). The two are deliberately decoupled: `stage-mods.rb` promotes from `LOCAL_MODS` into `STAGED_MODS` as an explicit step, so troubleshooting chuck's live client folder (e.g. clearing it to fix a version mismatch after a deploy but before a restart — happened 2026-07-04) can't silently change what `deploy.rb` thinks should be live.
 
-- `stage-mods.rb` = promote local→staged. Dry-run by default (shows COPY/REMOVE plan), `--apply` to write. Run this once rustique updates/installs are ready to go out.
+- `stage-mods.rb` = promote local→staged. Dry-run by default (shows COPY/REMOVE plan), `--apply` to write. Run this once rustique updates/installs are ready to go out. It mirrors every `*.zip` with no side filter, so client-only mods from chuck's client folder ride along. **That is fine — chuck's call, 2026-08-16: client mods on the server are inert, they just don't do anything there.** Don't treat it as a problem, don't flag it as a risk, and don't propose cleaning them off. Six of them (`ExtraInfo`, `itempickuphighlighter`, `nohands`, `resin_relief`, `statushudcont`, `zoombuttonreborn`) have lived on the server for months with no ill effect. The only real cost is a slightly larger upload.
 - `deploy.rb` = **dry-run**: prints the exact UPLOAD (new/changed) + DELETE (server zips absent from staged) plan, writes nothing. Always run this first and eyeball it.
 - `deploy.rb --apply` = execute. Engine assemblies (`VS*.dll`/`.pdb`) are never deleted. Take a `genbackup` first.
 - After apply, re-run the dry-run: an empty plan confirms live == staged.
@@ -77,7 +77,7 @@ The server runs **1.22.x** — always confirm a mod targets it before deploying;
 
 - **Compat + download URL in one shot:** `curl -s https://mods.vintagestory.at/api/mod/<urlalias-or-numeric-modid>` returns JSON with `mod.releases[]` (each has `filename`, `tags` = the exact game versions, `mainfile` = direct CDN download) and `mod.side`. Use `urlalias` (e.g. `temporalsreformed`) or the API **modid** — note the `/show/mod/<N>` page number is an *assetid*, NOT the API modid, so numeric lookups often resolve the wrong mod; prefer the alias.
   - **The API also 404s on some *valid* aliases** (seen 2026-06: `hcwforked`, `ndlexpandedgrowthtrees`, `soildropsupdated` — the modid often differs from the page alias too, e.g. modid `hardcorewaterforked` vs page `hcwforked`). When `api/mod/<x>` returns `statuscode != "200"`/no `mod`, fall back to the **page**: `curl -s https://mods.vintagestory.at/<alias>` and grep the HTML for the real download link `href="/download/<fileid>/<file>.zip"` (download from `https://mods.vintagestory.at/download/<fileid>/...`), or `WebFetch` the page for version/compat. Try the modid (from the zip's `modinfo.json`) as an alternate API key before giving up.
-- **Client vs server side:** check the zip's `modinfo.json` `side`. `side: server` (or unset/universal) → deploy to `$REMOTE_BASE/Mods`. **`side: client` mods (e.g. render tweaks) must go in each player's own client Mods folder (`$LOCAL_MODS`), not the server** — VS does not push client mods to players. Verify a download first: `unzip -t` for integrity, `unzip -p <zip> modinfo.json` for modid/version/side/dependencies.
+- **Client vs server side:** check the zip's `modinfo.json` `side`. `side: server` (or unset/universal) → deploy to `$REMOTE_BASE/Mods`. `side: client` mods (e.g. render tweaks) only *do* anything in a player's own client Mods folder, because VS does not push client mods to players — so installing one means putting it on each client directly. **A client mod also sitting on the server is harmless and explicitly fine (chuck, 2026-08-16)**; side matters for *where it takes effect*, not for what's safe to deploy. Verify a download first: `unzip -t` for integrity, `unzip -p <zip> modinfo.json` for modid/version/side/dependencies.
 - **What players must do after a deploy:** for `side: server` and `side: universal`/"both" mods, **nothing** — since VS 1.16 the server auto-downloads them to connecting clients (they're prompted on join). Only **pure `side: client`** mods need manual per-player install. So a normal `deploy.rb` + `restart.rb` of server/universal mods needs zero action from Lance & co. — don't tell players to hand-install those.
 
 ## File layout invariants
@@ -117,6 +117,33 @@ restart still works if HH ever stops auto-restarting (then `stop` leaves it down
 **Run `restart.rb` in the background** (it polls for up to `TRIES × POLL` seconds waiting for boot,
 currently ~10 min, plus a post-boot error-scan window) — don't block the session on it. Check the
 result when the background task notification arrives instead of waiting synchronously.
+
+**Fixed 2026-08-10 — `restart.rb` used to lie in both directions.** Kept here because the shape of
+the bug is worth recognising, and because the fixes are what you now rely on.
+
+Symptom: every backgrounded run printed `SFTP fetch failed` for all 90 polls (~900s) and gave up,
+while hand-run `sftp.rb get` of the same log from the same machine worked fine throughout. Two wrong
+theories died on the way (Host Havoc throttling the reconnect loop; the server never stopping).
+
+Actual root cause: **`VS.sftp` returned the Net::SFTP *session*, not the block's value**, so
+`baseline` and `tail_since` both got `nil`, `nil.bytesize` raised `NoMethodError`, and a bare
+`rescue StandardError → nil` relabelled it "SFTP fetch failed". SFTP was healthy the whole time. The
+tell was in the very first line — `flush + stop (log baseline B)` with an empty byte count — invisible
+because output was block-buffered. Callers that only wanted side effects (`sftp.rb`, `tail-log.rb`,
+`snapshot.rb`, `deploy.rb`) never noticed; only a caller reading the return value was affected.
+
+Now in place: `lib.rb` captures and returns the block value (AI-DEV note guards it); `tail_since`
+returns a `FetchResult(data, error)` so the real exception is printed per-poll and summarised at the
+end; `stop_landed?` confirms the stop landed (log rotated *or* RCON dark) and bails in ~90s instead of
+burning 15 minutes on a server that never went down; `$stdout.sync = true` makes backgrounded runs
+readable while running. `restart.rb --selftest` covers the pure helpers (mutation-checked).
+
+**Still verify the bounce independently when it matters.** The fresh log's first-line timestamp (VS
+starts a new `server-main.log` per boot and archives the old one) is the one signal a blind poll
+can't fake. If you hand-roll that check, **baseline the log first** — a whole-file
+`grep "now running on Port"` matches the *previous* boot and fires instantly — and require a boot
+line that is new, not merely present, since a fetch during the stop window can catch the log
+mid-write.
 
 **Readiness ≠ RCON.** RCON answers early (its mod loads before the world is ready), so "RCON responds"
 is a false ready signal — and errors often surface *after* the port opens (chunk gen, mod init, first
@@ -164,7 +191,7 @@ port `42425` (configurable in `ModConfig/vsrcon.json` — the filename is `vsrco
 | `list <clients\|banned\|roles\|privileges>` | `/list …` | who's on, bans, roles (server requires the arg) |
 | `info [ident\|seed\|createdversion\|mapsize]` | `/info …` | save-game info |
 | `time` / `stats` / `weather` | as-is | world + server state |
-| `mods` | `/moddb list` | loaded mods |
+| `mods` | `/moddb list` | ⚠️ **returns nothing** — `/moddb list` produces no RCON output (verified 2026-08-08). For the live modlist, grep `server-main.log` for `3rd party mods installed` instead. |
 | `help` | `/help` | server command list |
 | `wc <field>` | `/worldconfig <field>` | **read only** — one field, no value accepted |
 | `wc-set <field> <value>` | `/worldconfig <field> <value>` | **write** — one field + one charset-safe value; mutates the live world, announce before running |
